@@ -1,5 +1,7 @@
 <?php
 
+use \webignition\WebResource\WebResource;
+
 class WebResourceTest extends PHPUnit_Framework_TestCase {
 
     public function testSetGetUrl() {
@@ -17,7 +19,9 @@ class WebResourceTest extends PHPUnit_Framework_TestCase {
         $resource = new \webignition\WebResource\WebResource();
         $resource->setContentType($value);
         
-        $this->assertEquals($value, $resource->getContentType());     
+        $contentType = $resource->getContentType();
+        $this->assertInstanceOf('\webignition\InternetMediaType\InternetMediaType', $contentType);        
+        $this->assertEquals($value, (string)$resource->getContentType());
     }
     
     public function testSetGetContent() {

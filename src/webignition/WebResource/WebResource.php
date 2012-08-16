@@ -1,6 +1,9 @@
 <?php
 namespace webignition\WebResource;
 
+use webignition\InternetMediaType\Parser\Parser as InternetMediaTypeParser;
+use webignition\InternetMediaType\InternetMediaType;
+
 /**
  * Models a web-based resource
  */
@@ -18,7 +21,7 @@ class WebResource
     
     /**
      *
-     * @var string
+     * @var InternetMediaType
      */
     private $contentType;
     
@@ -56,12 +59,13 @@ class WebResource
     /**
      * Set content type
      *
-     * @param string $contentType
+     * @param string $contentTypeString
      * @return WebResource
      */
-    public function setContentType($contentType)
+    public function setContentType($contentTypeString)
     {
-        $this->contentType = $contentType;    
+        $parser = new InternetMediaTypeParser();
+        $this->contentType = $parser->parse($contentTypeString);
         return $this;
     }
 
@@ -96,5 +100,5 @@ class WebResource
     public function getContent()
     {
         return $this->content;
-    }    
+    }
 }
