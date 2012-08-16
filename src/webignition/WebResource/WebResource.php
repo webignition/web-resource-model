@@ -49,7 +49,7 @@ class WebResource
      */
     public function addValidContentType(InternetMediaType $contentType) {
         if (!$this->hasValidContentType($contentType)) {
-            $this->validContentTypes[$contentType->getType() . '/' . $contentType->getSubtype()] = $contentType;
+            $this->validContentTypes[$contentType->getTypeSubtypeString()] = $contentType;
         }
         
         return $this;        
@@ -63,7 +63,7 @@ class WebResource
      */
     public function removeValidContentType(InternetMediaType $contentType) {
         if ($this->hasValidContentType($contentType)) {
-            unset($this->validContentTypes[$contentType->getType() . '/' . $contentType->getSubtype()]);
+            unset($this->validContentTypes[$contentType->getTypeSubtypeString()]);
         }
         
         return $this;
@@ -76,7 +76,7 @@ class WebResource
      * @return boolean 
      */
     private function hasValidContentType(InternetMediaType $contentType) {
-        return array_key_exists($contentType->getType() . '/' . $contentType->getSubtype(), $this->validContentTypes );
+        return array_key_exists($contentType->getTypeSubtypeString(), $this->validContentTypes );
     }
     
     
