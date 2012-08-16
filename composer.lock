@@ -1,7 +1,18 @@
 {
-    "hash": "606f8036aa6b4a8f96a617ce80d24cfe",
+    "hash": "5ea07fdf39a6fda5ca3e2adf48b8c31b",
     "packages": [
-
+        {
+            "package": "webignition/internet-media-type",
+            "version": "0.3"
+        },
+        {
+            "package": "webignition/quoted-string",
+            "version": "0.2"
+        },
+        {
+            "package": "webignition/string-parser",
+            "version": "0.1"
+        }
     ],
     "packages-dev": null,
     "aliases": [
