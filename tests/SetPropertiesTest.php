@@ -2,9 +2,9 @@
 
 use \webignition\WebResource\WebResource;
 
-class WebResourceTest extends PHPUnit_Framework_TestCase {
+class SetPropertiesTest extends PHPUnit_Framework_TestCase {
 
-    public function testSetGetUrl() {
+    public function testSetUrl() {
         $value = 'http://example.com/content';
         
         $resource = new \webignition\WebResource\WebResource();
@@ -13,7 +13,7 @@ class WebResourceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($value, $resource->getUrl());
     }    
     
-    public function testSetGetContentType() {
+    public function testSetContentType() {
         $value = 'text/html; charset=utf-8';
         
         $resource = new \webignition\WebResource\WebResource();
@@ -24,7 +24,7 @@ class WebResourceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($value, (string)$resource->getContentType());
     }
     
-    public function testSetGetContent() {
+    public function testSetContent() {
         $value = 'resource content here';
         
         $resource = new \webignition\WebResource\WebResource();

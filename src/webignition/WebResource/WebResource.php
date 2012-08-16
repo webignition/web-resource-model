@@ -32,6 +32,54 @@ class WebResource
      */
     private $content;
     
+    
+    /**
+     *  Collection of valid internet media type types and subtypes allowed for
+     *  this resource
+     * 
+     * @var array
+     */
+    private $validContentTypes = array();
+    
+    
+    /**
+     *
+     * @param InternetMediaType $contentType
+     * @return \webignition\WebResource\WebResource 
+     */
+    public function addValidContentType(InternetMediaType $contentType) {
+        if (!$this->hasValidContentType($contentType)) {
+            $this->validContentTypes[$contentType->getType() . '/' . $contentType->getSubtype()] = $contentType;
+        }
+        
+        return $this;        
+    }
+    
+    
+    /**
+     *
+     * @param InternetMediaType $contentType
+     * @return \webignition\WebResource\WebResource 
+     */
+    public function removeValidContentType(InternetMediaType $contentType) {
+        if ($this->hasValidContentType($contentType)) {
+            unset($this->validContentTypes[$contentType->getType() . '/' . $contentType->getSubtype()]);
+        }
+        
+        return $this;
+    }
+    
+    
+    /**
+     *
+     * @param InternetMediaType $contentType
+     * @return boolean 
+     */
+    private function hasValidContentType(InternetMediaType $contentType) {
+        return array_key_exists($contentType->getType() . '/' . $contentType->getSubtype(), $this->validContentTypes );
+    }
+    
+    
 
     /**
      * Set url
@@ -53,20 +101,6 @@ class WebResource
     public function getUrl()
     {
         return $this->url;
-    }
-    
-    
-    /**
-     * Set content type
-     *
-     * @param string $contentTypeString
-     * @return WebResource
-     */
-    public function setContentType($contentTypeString)
-    {
-        $parser = new InternetMediaTypeParser();
-        $this->contentType = $parser->parse($contentTypeString);
-        return $this;
     }
 
     /**
@@ -101,4 +135,36 @@ class WebResource
     {
         return $this->content;
     }
+    
+    /**
+     * Set content type
+     *
+     * @param string $contentTypeString
+     * @return WebResource
+     */
+    public function setContentType($contentTypeString) {
+        $mediaTypeParser = new InternetMediaTypeParser();
+        $contentType = $mediaTypeParser->parse($contentTypeString);
+
+        if (!$this->isValidContentType($contentType)) {
+            throw new Exception('Invalid content type: "'.$contentTypeString.'"', 1);
+        }
+       
+        $this->contentType = $contentType;
+        return $this;
+    }
+    
+    
+    /**
+     *
+     * @param InternetMediaType $contentType
+     * @return boolean 
+     */
+    private function isValidContentType(InternetMediaType $contentType) {
+        if (count($this->validContentTypes) === 0) {
+            return true;
+        }
+        
+        return $this->hasValidContentType($contentType);
+    }    
 }
