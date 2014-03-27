@@ -2,36 +2,30 @@
 
 namespace webignition\Tests\WebResource;
 
-use \webignition\WebResource\WebResource;
-
 class SetPropertiesTest extends BaseTest {
 
     public function testSetUrl() {
         $value = 'http://example.com/content';
+
+        $this->resource->setUrl($value);
         
-        $resource = new \webignition\WebResource\WebResource();
-        $resource->setUrl($value);
-        
-        $this->assertEquals($value, $resource->getUrl());
+        $this->assertEquals($value, $this->resource->getUrl());
     }    
     
     public function testSetContentType() {
         $value = 'text/html; charset=utf-8';
-        
-        $resource = new \webignition\WebResource\WebResource();
-        $resource->setContentType($value);
-        
-        $contentType = $resource->getContentType();
-        $this->assertInstanceOf('\webignition\InternetMediaType\InternetMediaType', $contentType);        
-        $this->assertEquals($value, (string)$resource->getContentType());
+
+        $this->resource->setContentType($value);
+
+        $this->assertInstanceOf('\webignition\InternetMediaType\InternetMediaType', $this->resource->getContentType());        
+        $this->assertEquals($value, (string)$this->resource->getContentType());
     }
     
     public function testSetContent() {
         $value = 'resource content here';
         
-        $resource = new \webignition\WebResource\WebResource();
-        $resource->setContent($value);
+        $this->resource->setContent($value);
         
-        $this->assertEquals($value, $resource->getContent());     
+        $this->assertEquals($value, $this->resource->getContent());     
     }    
 }

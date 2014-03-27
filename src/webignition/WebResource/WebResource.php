@@ -44,6 +44,13 @@ class WebResource
     
     /**
      *
+     * @var \Guzzle\Http\Message\Header\HeaderCollection
+     */
+    private $httpResponseHeaders = null;    
+
+    
+    /**
+     *
      * @param InternetMediaType $contentType
      * @return \webignition\WebResource\WebResource 
      */
@@ -167,4 +174,28 @@ class WebResource
         
         return $this->hasValidContentType($contentType);
     }    
+    
+
+    /**
+     * 
+     * @param \Guzzle\Http\Message\Header\HeaderCollection $headers
+     * @return \webignition\WebResource\WebResource
+     */
+    public function setHttpResponseHeaders(\Guzzle\Http\Message\Header\HeaderCollection $headers) {
+        $this->httpResponseHeaders = $headers;
+        return $this;
+    }
+    
+    
+    /**
+     * 
+     * @return \Guzzle\Http\Message\Header\HeaderCollection
+     */
+    public function getHttpResponseHeaders() {
+        if (is_null($this->httpResponseHeaders)) {
+            $this->httpResponseHeaders = new \Guzzle\Http\Message\Header\HeaderCollection();
+        }
+        
+        return $this->httpResponseHeaders;
+    }
 }
