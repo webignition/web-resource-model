@@ -1,9 +1,11 @@
 <?php
 
+namespace webignition\Tests\WebResource;
+
 use webignition\WebResource\WebResource;
 use webignition\InternetMediaType\InternetMediaType;
 
-class SetContentTypeValidityTest extends PHPUnit_Framework_TestCase {
+class SetContentTypeValidityTest extends \PHPUnit_Framework_TestCase {
     
     public function testSetContentTypeWithNoSpecifiedValidTypes() {
         $value = 'text/html; charset=utf-8';
