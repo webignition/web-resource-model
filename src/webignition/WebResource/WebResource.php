@@ -155,6 +155,17 @@ class WebResource
     
     /**
      * 
+     * @param string $content
+     * @return \webignition\WebResource\WebResource
+     */
+    public function setContent($content) {
+        $this->getHttpResponse()->setBody($content);
+        return $this;
+    }
+    
+    
+    /**
+     * 
      * @return string
      */
     public function getUrl() {
