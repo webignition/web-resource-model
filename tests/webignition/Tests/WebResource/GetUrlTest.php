@@ -12,7 +12,7 @@ class GetUrlTest extends BaseTest {
     } 
     
     
-    public function tsetGetWithResponseUrlSet() {
+    public function testGetWithResponseUrlSet() {
         $url = 'http://example.com/';
         
         $response = \Guzzle\Http\Message\Response::fromMessage("HTTP/1.0 200 OK\nContent-Type:text/html");        
