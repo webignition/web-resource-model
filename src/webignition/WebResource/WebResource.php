@@ -1,63 +1,52 @@
 <?php
 namespace webignition\WebResource;
 
-use webignition\InternetMediaType\Parser\Parser as InternetMediaTypeParser;
-use webignition\InternetMediaType\InternetMediaType;
+use \webignition\InternetMediaType\InternetMediaType;
 
 /**
- * Models a web-based resource
+ * Models a web-based resource by providing access to commonly-used aspects
+ * of a HTTP response
  */
 class WebResource
 {    
-    
     /**
-     * Full absolute URL from which the resource was retrieved
-     * 
-     * @var string
-     * 
+     *
+     * @var \Guzzle\Http\Message\Response
      */
-    private $url;
-    
+    private $httpResponse;
+   
     
     /**
      *
      * @var InternetMediaType
      */
-    private $contentType;
-    
-    
-    /**
-     *
-     * @var string
-     */
-    private $content;
+    private $internetMediaType;
     
     
     /**
      *  Collection of valid internet media type types and subtypes allowed for
      *  this resource
      * 
-     * @var array
+     * @var InternetMediaType[]
      */
-    private $validContentTypes = array();
-    
-    
-    /**
-     *
-     * @var \Guzzle\Http\Message\Header\HeaderCollection
-     */
-    private $httpResponseHeaders = null;    
+    private $validInternetMediaTypes = array();
 
     
     /**
      *
-     * @param InternetMediaType $contentType
+     * @param InternetMediaType $mediaType
      * @return \webignition\WebResource\WebResource 
      */
-    public function addValidContentType(InternetMediaType $contentType) {
-        if (!$this->hasValidContentType($contentType)) {
-            $this->validContentTypes[$contentType->getTypeSubtypeString()] = $contentType;
-        }
+    public function addValidInternetMediaType(InternetMediaType $mediaType) {
+        $addedMediaType = new InternetMediaType();
+        $addedMediaType->setType($mediaType->getType());
+        $addedMediaType->setSubtype($mediaType->getSubtype());
+        
+        $this->validInternetMediaTypes[$addedMediaType->getTypeSubtypeString()] = $addedMediaType;
+        
+        if ($this->hasHttpResponse() && !$this->hasValidInternetMediaType()) {
+            throw new Exception('HTTP response contains invalid media type', 2);
+        }        
         
         return $this;        
     }
@@ -65,137 +54,92 @@ class WebResource
     
     /**
      *
-     * @param InternetMediaType $contentType
+     * @param InternetMediaType $mediaType
      * @return \webignition\WebResource\WebResource 
      */
-    public function removeValidContentType(InternetMediaType $contentType) {
-        if ($this->hasValidContentType($contentType)) {
-            unset($this->validContentTypes[$contentType->getTypeSubtypeString()]);
+    public function removeValidInternetMediaType(InternetMediaType $mediaType) {
+        if (array_key_exists($mediaType->getTypeSubtypeString(), $this->validInternetMediaTypes)) {
+            unset($this->validInternetMediaTypes[$mediaType->getTypeSubtypeString()]);
         }
+        
+        if ($this->hasHttpResponse() && !$this->hasValidInternetMediaType()) {
+            throw new Exception('HTTP response contains invalid media type', 2);
+        } 
         
         return $this;
     }
     
     
     /**
+     * 
+     * @return InternetMediaType[]
+     */
+    public function getValidInternetMediaTypes() {
+        return $this->validInternetMediaTypes;
+    }
+    
+    
+    /**
      *
-     * @param InternetMediaType $contentType
      * @return boolean 
      */
-    private function hasValidContentType(InternetMediaType $contentType) {
-        return array_key_exists($contentType->getTypeSubtypeString(), $this->validContentTypes );
-    }
-    
-    
-
-    /**
-     * Set url
-     *
-     * @param string $url
-     * @return WebResource
-     */
-    public function setUrl($url)
-    {
-        $this->url = $url;    
-        return $this;
-    }
-
-    /**
-     * Get url
-     *
-     * @return string 
-     */
-    public function getUrl()
-    {
-        return $this->url;
-    }
-
-    /**
-     * Get content type
-     *
-     * @return string 
-     */
-    public function getContentType()
-    {
-        return $this->contentType;
-    }    
-    
-    
-    /**
-     * Set content
-     *
-     * @param string $content
-     * @return WebResource
-     */
-    public function setContent($content)
-    {
-        $this->content = $content;    
-        return $this;
-    }
-
-    /**
-     * Get content
-     *
-     * @return string 
-     */
-    public function getContent()
-    {
-        return $this->content;
-    }
-    
-    /**
-     * Set content type
-     *
-     * @param string $contentTypeString
-     * @return WebResource
-     */
-    public function setContentType($contentTypeString) {
-        $mediaTypeParser = new InternetMediaTypeParser();
-        $contentType = $mediaTypeParser->parse($contentTypeString);
-
-        if (!$this->isValidContentType($contentType)) {
-            throw new Exception('Invalid content type: "'.$contentTypeString.'"', 1);
-        }
-       
-        $this->contentType = $contentType;
-        return $this;
-    }
-    
-    
-    /**
-     *
-     * @param InternetMediaType $contentType
-     * @return boolean 
-     */
-    private function isValidContentType(InternetMediaType $contentType) {
-        if (count($this->validContentTypes) === 0) {
+    public function hasValidInternetMediaType() {        
+        if (count($this->getValidInternetMediaTypes()) === 0) {
             return true;
         }
         
-        return $this->hasValidContentType($contentType);
+        return array_key_exists($this->getInternetMediaType()->getTypeSubtypeString(), $this->getValidInternetMediaTypes());
     }    
     
 
     /**
      * 
-     * @param \Guzzle\Http\Message\Header\HeaderCollection $headers
+     * @param \Guzzle\Http\Message\Response $response
      * @return \webignition\WebResource\WebResource
      */
-    public function setHttpResponseHeaders(\Guzzle\Http\Message\Header\HeaderCollection $headers) {
-        $this->httpResponseHeaders = $headers;
+    public function setHttpResponse(\Guzzle\Http\Message\Response $response) {
+        $this->httpResponse = $response;
+        
+        if (!$this->hasValidInternetMediaType()) {
+            throw new Exception('HTTP response contains invalid media type', 2);
+        }
+        
         return $this;
     }
     
     
     /**
      * 
-     * @return \Guzzle\Http\Message\Header\HeaderCollection
+     * @return \Guzzle\Http\Message\Response
      */
-    public function getHttpResponseHeaders() {
-        if (is_null($this->httpResponseHeaders)) {
-            $this->httpResponseHeaders = new \Guzzle\Http\Message\Header\HeaderCollection();
+    public function getHttpResponse() {
+        if (!$this->hasHttpResponse()) {
+            throw new Exception('HTTP response not set', 1);
         }
         
-        return $this->httpResponseHeaders;
+        return $this->httpResponse;
+    } 
+    
+    
+    /**
+     * 
+     * @return boolean
+     */
+    private function hasHttpResponse() {
+        return !is_null($this->httpResponse);
+    }
+    
+    
+    /**
+     * 
+     * @return \webignition\InternetMediaType\InternetMediaType
+     */
+    public function getInternetMediaType() {
+        if (is_null($this->internetMediaType)) {
+            $parser = new \webignition\InternetMediaType\Parser\Parser();
+            $this->internetMediaType = $parser->parse($this->getHttpResponse()->getContentType());           
+        }
+        
+        return $this->internetMediaType;
     }
 }
