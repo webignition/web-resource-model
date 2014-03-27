@@ -142,4 +142,22 @@ class WebResource
         
         return $this->contentType;
     }
+    
+    
+    /**
+     * 
+     * @return string
+     */
+    public function getContent() {
+        return $this->getHttpResponse()->getBody(true);
+    }
+    
+    
+    /**
+     * 
+     * @return string
+     */
+    public function getUrl() {
+        return $this->getHttpResponse()->getEffectiveUrl();
+    }
 }
