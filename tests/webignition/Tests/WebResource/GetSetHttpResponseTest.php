@@ -23,13 +23,13 @@ class GetSetHttpResponseTest extends BaseTest {
     }
     
     public function testSetHttpResponseWithNoMediaTypeThrowsException() {                
-        $this->setExpectedException('webignition\WebResource\Exception', 'HTTP response contains invalid media type', 2);
+        $this->setExpectedException('webignition\WebResource\Exception', 'HTTP response contains invalid content type', 2);
         
         $validMediaType = new InternetMediaType();
         $validMediaType->setType('foo');
         $validMediaType->setSubtype('bar');                
         
-        $this->resource->addValidInternetMediaType($validMediaType);
+        $this->resource->addValidContentType($validMediaType);
         
         $response = \Guzzle\Http\Message\Response::fromMessage("HTTP/1.0 200 OK");        
         $this->assertEquals($this->resource, $this->resource->setHttpResponse($response));        
@@ -37,13 +37,13 @@ class GetSetHttpResponseTest extends BaseTest {
     
     
     public function testSetHttpResponseWithInvalidMediaTypeThrowsException() {                
-        $this->setExpectedException('webignition\WebResource\Exception', 'HTTP response contains invalid media type', 2);
+        $this->setExpectedException('webignition\WebResource\Exception', 'HTTP response contains invalid content type', 2);
         
         $validMediaType = new InternetMediaType();
         $validMediaType->setType('foo');
         $validMediaType->setSubtype('bar');                
         
-        $this->resource->addValidInternetMediaType($validMediaType);
+        $this->resource->addValidContentType($validMediaType);
         
         $response = \Guzzle\Http\Message\Response::fromMessage("HTTP/1.0 200 OK\nContent-Type:text/html");        
         $this->assertEquals($this->resource, $this->resource->setHttpResponse($response));        

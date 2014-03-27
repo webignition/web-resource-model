@@ -1,6 +1,6 @@
 <?php
 
-namespace webignition\Tests\WebResource\ValidInternetMediaTypes;
+namespace webignition\Tests\WebResource\ValidContentTypes;
 
 use webignition\Tests\WebResource\BaseTest;
 use webignition\InternetMediaType\InternetMediaType;
@@ -20,7 +20,7 @@ abstract class ChangeTest extends BaseTest {
             $mediaType->setSubtype('bar');
             
             $this->expectedMediaTypes[$mediaType->getTypeSubtypeString()] = $mediaType;
-            $this->resource->addValidInternetMediaType($mediaType);
+            $this->resource->addValidContentType($mediaType);
         }
     }    
 
