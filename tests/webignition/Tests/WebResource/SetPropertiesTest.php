@@ -4,7 +4,7 @@ namespace webignition\Tests\WebResource;
 
 use \webignition\WebResource\WebResource;
 
-class SetPropertiesTest extends \PHPUnit_Framework_TestCase {
+class SetPropertiesTest extends BaseTest {
 
     public function testSetUrl() {
         $value = 'http://example.com/content';
