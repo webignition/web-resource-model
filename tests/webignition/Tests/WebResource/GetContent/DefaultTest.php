@@ -1,8 +1,10 @@
 <?php
 
-namespace webignition\Tests\WebResource;
+namespace webignition\Tests\WebResource\GetContent;
 
-class GetContentTest extends BaseTest {
+use webignition\Tests\WebResource\BaseTest;
+
+class DefaultTest extends BaseTest {
     
     public function testGetWithEmptyBody() {
         $response = \Guzzle\Http\Message\Response::fromMessage("HTTP/1.0 200 OK");        

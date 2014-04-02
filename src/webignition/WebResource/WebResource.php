@@ -156,7 +156,48 @@ class WebResource
      * @return string|null
      */
     public function getContent() {
-        return $this->hasHttpResponse() ? $this->getHttpResponse()->getBody(true) : null;
+        return $this->hasHttpResponse() ? $this->getResponseContent() : null;
+    }
+    
+    
+    /**
+     * Used to catch errors that will occur when running gzdecode
+     * on plain text.
+     * 
+     * Can't tell if response body content is gzip encoded; headers and body
+     * may not match.
+     * 
+     * @param int $errno
+     * @param string $errstr
+     * @param string $errfile
+     * @param int $errline
+     * @throws ContentDecodeException
+     * @throws \ErrorException
+     */
+    private function errorHandler($errno, $errstr, $errfile, $errline) {
+        if (substr_count($errstr, 'gzdecode')) {
+            throw new ContentDecodeException('Unable to gzdecode content', 1);
+        }
+        
+        throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+    }
+    
+    
+    /**
+     * 
+     * @return string
+     */
+    private function getResponseContent() {
+        set_error_handler(array(&$this, 'errorHandler'));
+        
+        try {
+            $content = gzdecode($this->getHttpResponse()->getBody(true));
+            restore_error_handler();
+            return $content;
+        } catch (ContentDecodeException $contentDecodeException) {
+            restore_error_handler();
+            return $this->getHttpResponse()->getBody(true);
+        }
     }
     
     
@@ -197,5 +238,5 @@ class WebResource
         }
         
         return $this;
-    }
+    }   
 }
