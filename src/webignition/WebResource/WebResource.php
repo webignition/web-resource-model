@@ -171,4 +171,15 @@ class WebResource
     public function getUrl() {
         return $this->getHttpResponse()->getEffectiveUrl();
     }
+    
+    
+    /**
+     * 
+     * @param string $url
+     * @return \webignition\WebResource\WebResource
+     */
+    public function setUrl($url) {
+        $this->getHttpResponse()->setEffectiveUrl($url);
+        return $this;
+    }
 }
