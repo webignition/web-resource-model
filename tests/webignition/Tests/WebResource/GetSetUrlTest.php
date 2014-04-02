@@ -45,5 +45,11 @@ class GetSetUrlTest extends BaseTest {
         $this->resource->setUrl($newUrl);
         
         $this->assertEquals($newUrl, $this->resource->getUrl());        
-    }    
+    } 
+    
+    
+    public function testSetUrlBeforeSettingHttpResponse() {
+        $url = 'http://example.com/';
+        $this->assertEquals($url, $this->resource->setUrl($url)->getUrl());         
+    }
 }

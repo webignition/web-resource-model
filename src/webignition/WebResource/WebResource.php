@@ -30,6 +30,13 @@ class WebResource
      * @var InternetMediaType[]
      */
     private $validContentTypes = array();
+    
+    
+    /**
+     *
+     * @var string
+     */
+    private $url;
 
     
     /**
@@ -166,9 +173,13 @@ class WebResource
     
     /**
      * 
-     * @return string
+     * @return string|null
      */
     public function getUrl() {
+        if (!$this->hasHttpResponse()) {
+            return $this->url;
+        }
+        
         return $this->getHttpResponse()->getEffectiveUrl();
     }
     
@@ -179,7 +190,12 @@ class WebResource
      * @return \webignition\WebResource\WebResource
      */
     public function setUrl($url) {
-        $this->getHttpResponse()->setEffectiveUrl($url);
+        if ($this->hasHttpResponse()) {
+            $this->getHttpResponse()->setEffectiveUrl($url);
+        } else {
+            $this->url = $url;
+        }
+        
         return $this;
     }
 }
