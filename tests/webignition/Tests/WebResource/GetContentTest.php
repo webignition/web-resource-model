@@ -19,4 +19,8 @@ class GetContentTest extends BaseTest {
         
         $this->assertEquals($content, $this->resource->getContent());        
     }
+    
+    public function testGetWithNoHttpResponseReturnsNull() {
+        $this->assertNull($this->resource->getContent());
+    }
 }

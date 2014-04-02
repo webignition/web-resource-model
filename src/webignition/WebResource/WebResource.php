@@ -153,10 +153,10 @@ class WebResource
     
     /**
      * 
-     * @return string
+     * @return string|null
      */
     public function getContent() {
-        return $this->getHttpResponse()->getBody(true);
+        return $this->hasHttpResponse() ? $this->getHttpResponse()->getBody(true) : null;
     }
     
     
