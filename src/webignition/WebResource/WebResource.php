@@ -37,6 +37,12 @@ class WebResource
      * @var string
      */
     private $url;
+    
+    
+    /**
+     * @var \webignition\InternetMediaType\Parser\Parser
+     */
+    private $internetMediaTypeParser;
 
     
     /**
@@ -143,11 +149,25 @@ class WebResource
      */
     public function getContentType() {
         if (is_null($this->contentType)) {
-            $parser = new \webignition\InternetMediaType\Parser\Parser();
-            $this->contentType = $parser->parse($this->getHttpResponse()->getContentType());           
+            $this->contentType = $this->getInternetMediaTypeParser()->parse($this->getHttpResponse()->getContentType());           
         }
         
         return $this->contentType;
+    }
+    
+    
+    /**
+     * 
+     * @return \webignition\InternetMediaType\Parser\Parser
+     */
+    public function getInternetMediaTypeParser() {
+        if (is_null($this->internetMediaTypeParser)) {
+            $this->internetMediaTypeParser = new \webignition\InternetMediaType\Parser\Parser();
+            $this->internetMediaTypeParser->getConfiguration()->enableIgnoreInvalidAttributes();
+            $this->internetMediaTypeParser->getConfiguration()->enableAttemptToRecoverFromInvalidInternalCharacter();
+        }
+        
+        return $this->internetMediaTypeParser;
     }
     
     
