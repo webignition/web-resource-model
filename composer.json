@@ -24,8 +24,7 @@
         "doctrine/collections":"~1.0"
     },
     "require-dev": {
-        "symfony/class-loader": "*",
-        "phpunit/phpunit": "3.7.*"
+        "phpunit/phpunit": "~4.0"
     },            
     "minimum-stability":"dev",
     "prefer-stable":true
