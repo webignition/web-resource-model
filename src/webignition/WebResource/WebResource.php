@@ -198,6 +198,20 @@ class WebResource
         if (substr_count($errstr, 'gzdecode')) {
             throw new ContentDecodeException('Unable to gzdecode content', 1);
         }
+
+        /**
+         * gzip return code 2 indicates a warning as documented at
+         * http://unixhelp.ed.ac.uk/CGI/man-cgi?gzip
+         *
+         * In this case, the warning is /very likely/ related to trying to
+         * decompress plain text
+         *
+         * PHP 5.3+ gzdecode returns the plain string given to it as-is
+         * HHVM 3.5+ gzdecode raises a warning when given a plain string
+         */
+        if ($errno === 2) {
+            throw new ContentDecodeException('Unable to gzdecode probably-plain content', 2);
+        }
         
         throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
     }
