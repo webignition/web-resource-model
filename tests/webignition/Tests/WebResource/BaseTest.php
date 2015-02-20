@@ -2,6 +2,9 @@
 
 namespace webignition\Tests\WebResource;
 
+use GuzzleHttp\Message\MessageFactory as HttpMessageFactory;
+use GuzzleHttp\Message\ResponseInterface as HttpResponse;
+
 abstract class BaseTest extends \PHPUnit_Framework_TestCase {   
     
     /**
@@ -14,6 +17,16 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase {
         parent::setUp();
         
         $this->resource = new \webignition\WebResource\WebResource();
-    }    
+    }
+
+
+    /**
+     * @param $message
+     * @return HttpResponse
+     */
+    protected function getHttpResponseFromMessage($message) {
+        $factory = new HttpMessageFactory();
+        return $factory->fromMessage($message);
+    }
     
 }

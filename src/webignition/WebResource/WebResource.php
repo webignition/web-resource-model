@@ -2,6 +2,9 @@
 namespace webignition\WebResource;
 
 use \webignition\InternetMediaType\InternetMediaType;
+use \webignition\InternetMediaType\Parser\Parser as InternetMediaTypeParser;
+use \GuzzleHttp\Message\ResponseInterface as HttpResponse;
+use \GuzzleHttp\Stream\Stream as GuzzleStream;
 
 /**
  * Models a web-based resource by providing access to commonly-used aspects
@@ -11,7 +14,7 @@ class WebResource
 {    
     /**
      *
-     * @var \Guzzle\Http\Message\Response
+     * @var HttpResponse
      */
     private $httpResponse;
    
@@ -44,11 +47,11 @@ class WebResource
      */
     private $internetMediaTypeParser;
 
-    
+
     /**
-     *
      * @param InternetMediaType $contentType
-     * @return \webignition\WebResource\WebResource 
+     * @return WebResource
+     * @throws Exception
      */
     public function addValidContentType(InternetMediaType $contentType) {
         $addedMediaType = new InternetMediaType();
@@ -63,12 +66,12 @@ class WebResource
         
         return $this;        
     }
-    
-    
+
+
     /**
-     *
      * @param InternetMediaType $contentType
-     * @return \webignition\WebResource\WebResource 
+     * @return WebResource
+     * @throws Exception
      */
     public function removeValidContentType(InternetMediaType $contentType) {
         if (array_key_exists($contentType->getTypeSubtypeString(), $this->validContentTypes)) {
@@ -103,14 +106,14 @@ class WebResource
         
         return array_key_exists($this->getContentType()->getTypeSubtypeString(), $this->getValidContentTypes());
     }    
-    
+
 
     /**
-     * 
-     * @param \Guzzle\Http\Message\Response $response
-     * @return \webignition\WebResource\WebResource
+     * @param HttpResponse $response
+     * @return WebResource
+     * @throws Exception
      */
-    public function setHttpResponse(\Guzzle\Http\Message\Response $response) {
+    public function setHttpResponse(HttpResponse $response) {
         $this->httpResponse = $response;
         
         if (!$this->hasValidContentType()) {
@@ -119,11 +122,11 @@ class WebResource
         
         return $this;
     }
-    
-    
+
+
     /**
-     * 
-     * @return \Guzzle\Http\Message\Response
+     * @return HttpResponse
+     * @throws Exception
      */
     public function getHttpResponse() {
         if (!$this->hasHttpResponse()) {
@@ -145,11 +148,11 @@ class WebResource
     
     /**
      * 
-     * @return \webignition\InternetMediaType\InternetMediaType
+     * @return InternetMediaType
      */
     public function getContentType() {
         if (is_null($this->contentType)) {
-            $this->contentType = $this->getInternetMediaTypeParser()->parse($this->getHttpResponse()->getContentType());           
+            $this->contentType = $this->getInternetMediaTypeParser()->parse($this->getHttpResponse()->getHeader('content-type'));
         }
         
         return $this->contentType;
@@ -158,11 +161,11 @@ class WebResource
     
     /**
      * 
-     * @return \webignition\InternetMediaType\Parser\Parser
+     * @return InternetMediaTypeParser
      */
     public function getInternetMediaTypeParser() {
         if (is_null($this->internetMediaTypeParser)) {
-            $this->internetMediaTypeParser = new \webignition\InternetMediaType\Parser\Parser();
+            $this->internetMediaTypeParser = new InternetMediaTypeParser();
             $this->internetMediaTypeParser->getConfiguration()->enableIgnoreInvalidAttributes();
             $this->internetMediaTypeParser->getConfiguration()->enableAttemptToRecoverFromInvalidInternalCharacter();
         }
@@ -238,10 +241,10 @@ class WebResource
     /**
      * 
      * @param string $content
-     * @return \webignition\WebResource\WebResource
+     * @return WebResource
      */
     public function setContent($content) {
-        $this->getHttpResponse()->setBody($content);
+        $this->getHttpResponse()->setBody(GuzzleStream::factory($content));
         return $this;
     }
     
@@ -262,7 +265,7 @@ class WebResource
     /**
      * 
      * @param string $url
-     * @return \webignition\WebResource\WebResource
+     * @return WebResource
      */
     public function setUrl($url) {
         if ($this->hasHttpResponse()) {

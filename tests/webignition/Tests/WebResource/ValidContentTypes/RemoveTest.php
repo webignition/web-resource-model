@@ -16,7 +16,7 @@ class RemoveTest extends ChangeTest {
     
     
     public function testRemoveContentTypeThatInvalidatesHttpResponseContentTypeThrowsException() {
-        $response = \Guzzle\Http\Message\Response::fromMessage("HTTP/1.0 200 OK\nContent-Type:foo0/bar");
+        $response = $this->getHttpResponseFromMessage("HTTP/1.0 200 OK\nContent-Type:foo0/bar");
         $this->resource->setHttpResponse($response);        
         
         $this->setExpectedException('webignition\WebResource\Exception', 'HTTP response contains invalid content type', 2);

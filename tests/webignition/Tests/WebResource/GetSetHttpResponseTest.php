@@ -12,12 +12,12 @@ class GetSetHttpResponseTest extends BaseTest {
     }
  
     public function testSetReturnsSelf() {
-        $response = \Guzzle\Http\Message\Response::fromMessage("HTTP/1.0 200 OK");        
+        $response = $this->getHttpResponseFromMessage("HTTP/1.0 200 OK");
         $this->assertEquals($this->resource, $this->resource->setHttpResponse($response));
     }    
     
     public function testGetReturnsThatSet() {
-        $response = \Guzzle\Http\Message\Response::fromMessage("HTTP/1.0 200 OK"); 
+        $response = $this->getHttpResponseFromMessage("HTTP/1.0 200 OK");
         
         $this->assertEquals($response, $this->resource->setHttpResponse($response)->getHttpResponse());
     }
@@ -31,7 +31,7 @@ class GetSetHttpResponseTest extends BaseTest {
         
         $this->resource->addValidContentType($validMediaType);
         
-        $response = \Guzzle\Http\Message\Response::fromMessage("HTTP/1.0 200 OK");        
+        $response = $this->getHttpResponseFromMessage("HTTP/1.0 200 OK");
         $this->assertEquals($this->resource, $this->resource->setHttpResponse($response));        
     }
     
@@ -45,7 +45,7 @@ class GetSetHttpResponseTest extends BaseTest {
         
         $this->resource->addValidContentType($validMediaType);
         
-        $response = \Guzzle\Http\Message\Response::fromMessage("HTTP/1.0 200 OK\nContent-Type:text/html");        
+        $response = $this->getHttpResponseFromMessage("HTTP/1.0 200 OK\nContent-Type:text/html");
         $this->assertEquals($this->resource, $this->resource->setHttpResponse($response));        
     }    
    

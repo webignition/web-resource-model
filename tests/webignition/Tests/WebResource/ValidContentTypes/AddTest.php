@@ -24,7 +24,7 @@ class AddTest extends ChangeTest {
             $this->resource->removeValidContentType($mediaType);            
         }
         
-        $response = \Guzzle\Http\Message\Response::fromMessage("HTTP/1.0 200 OK");
+        $response = $this->getHttpResponseFromMessage("HTTP/1.0 200 OK");
         $this->resource->setHttpResponse($response);
         
         $mediaType = new InternetMediaType();

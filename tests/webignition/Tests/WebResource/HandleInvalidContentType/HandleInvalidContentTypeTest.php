@@ -11,7 +11,7 @@ abstract class HandleInvalidContentTypeTest extends BaseTest {
     public function setUp() {
         parent::setUp();
 
-        $response = \Guzzle\Http\Message\Response::fromMessage("HTTP/1.0 200 OK\nContent-Type:" . $this->getResponseContentType());        
+        $response = $this->getHttpResponseFromMessage("HTTP/1.0 200 OK\nContent-Type:" . $this->getResponseContentType());
         $this->resource->setHttpResponse($response);
         
         $this->extractedContentType = $this->resource->getContentType();      

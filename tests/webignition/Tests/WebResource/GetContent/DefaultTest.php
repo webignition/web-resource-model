@@ -4,10 +4,12 @@ namespace webignition\Tests\WebResource\GetContent;
 
 use webignition\Tests\WebResource\BaseTest;
 
+
 class DefaultTest extends BaseTest {
     
     public function testGetWithEmptyBody() {
-        $response = \Guzzle\Http\Message\Response::fromMessage("HTTP/1.0 200 OK");        
+        $response = $this->getHttpResponseFromMessage("HTTP/1.0 200 OK");
+
         $this->resource->setHttpResponse($response);
         $this->assertEquals('', $this->resource->getContent());
     } 
@@ -15,13 +17,13 @@ class DefaultTest extends BaseTest {
     
     public function testGetWithNonEmptyBody() {
         $content = 'foo';
-        
-        $response = \Guzzle\Http\Message\Response::fromMessage("HTTP/1.0 200 OK\nContent-Type:text/html\n\n" . $content);        
+
+        $response = $this->getHttpResponseFromMessage("HTTP/1.0 200 OK\nContent-Type:text/html\n\n" . $content);
         $this->resource->setHttpResponse($response);
-        
-        $this->assertEquals($content, $this->resource->getContent());        
+
+        $this->assertEquals($content, $this->resource->getContent());
     }
-    
+
     public function testGetWithNoHttpResponseReturnsNull() {
         $this->assertNull($this->resource->getContent());
     }
