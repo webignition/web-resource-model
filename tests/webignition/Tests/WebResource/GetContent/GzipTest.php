@@ -2,14 +2,16 @@
 
 namespace webignition\Tests\WebResource\GetContent;
 
-use webignition\Tests\WebResource\BaseTest;
+use webignition\Tests\WebResource\ResponseBasedTest;
 
-class GzipTest extends BaseTest {
+class GzipTest extends ResponseBasedTest {
+
+    protected function getHttpMessage() {
+        return $this->getHttpResponseFromMessage(file_get_contents(__DIR__ . '/gzipResponse.txt'));
+    }
+
     
-    public function testGetContentFromGzipResponse() {        
-        $response = $this->getHttpResponseFromMessage(file_get_contents(__DIR__ . '/gzipResponse.txt'));
-        $this->resource->setHttpResponse($response);
-        
+    public function testGetContentFromGzipResponse() {
         $this->assertRegExp('/^<\?xml/', $this->resource->getContent());
     }
 }
