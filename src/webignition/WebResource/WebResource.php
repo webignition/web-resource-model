@@ -226,14 +226,16 @@ class WebResource
      */
     private function getResponseContent() {
         set_error_handler(array(&$this, 'errorHandler'));
-        
+
+        $resourceContent = (string)$this->getHttpResponse()->getBody();
+
         try {
-            $content = gzdecode($this->getHttpResponse()->getBody(true));
+            $content = gzdecode($resourceContent);
             restore_error_handler();
             return $content;
         } catch (ContentDecodeException $contentDecodeException) {
             restore_error_handler();
-            return $this->getHttpResponse()->getBody(true);
+            return $resourceContent;
         }
     }
     
