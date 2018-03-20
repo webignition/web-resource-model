@@ -40,6 +40,12 @@ class WebResourceTest extends \PHPUnit_Framework_TestCase
         $htmlContent = '<!doctype html><html></html>';
 
         return [
+            'text/plain, empty content, no url' => [
+                'response' => $this->createResponse('text/plain', ''),
+                'url' => null,
+                'expectedContentType' => 'text/plain',
+                'expectedContent' => '',
+            ],
             'text/plain, empty content' => [
                 'response' => $this->createResponse('text/plain', ''),
                 'url' => 'http://example.com/foo.txt',

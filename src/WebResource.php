@@ -31,9 +31,9 @@ class WebResource
 
     /**
      * @param ResponseInterface $response
-     * @param string $url
+     * @param string|null $url
      */
-    public function __construct(ResponseInterface $response, $url)
+    public function __construct(ResponseInterface $response, $url = null)
     {
         $this->response = $response;
         $this->url = $url;
