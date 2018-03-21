@@ -3,6 +3,7 @@
 namespace webignition\WebResource;
 
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 use \webignition\InternetMediaType\InternetMediaType;
 use \webignition\InternetMediaType\Parser\Parser as InternetMediaTypeParser;
 
@@ -88,5 +89,20 @@ class WebResource
         }
 
         return $content;
+    }
+
+    /**
+     * @param StreamInterface $content
+     *
+     * @return WebResource
+     */
+    public function setContent(StreamInterface $content)
+    {
+        $updatedResponse = $this->getResponse();
+        $updatedResponse = $updatedResponse->withBody($content);
+
+        $resourceClassName = get_class($this);
+
+        return new $resourceClassName($updatedResponse, $this->getUrl());
     }
 }

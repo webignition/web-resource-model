@@ -6,6 +6,7 @@ use Mockery\Mock;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use webignition\InternetMediaType\InternetMediaType;
+use webignition\Tests\WebResource\Implementation\FooWebResource;
 use webignition\WebResource\WebResource;
 
 class WebResourceTest extends \PHPUnit_Framework_TestCase
@@ -77,6 +78,42 @@ class WebResourceTest extends \PHPUnit_Framework_TestCase
                 'expectedContent' => 'foo',
             ],
         ];
+    }
+
+    public function testSetContent()
+    {
+        $url = 'http://example.com';
+        $originalContent = 'foo';
+        $updatedContent = 'bar';
+
+        $response = $this->createResponse('text/html', $originalContent);
+
+        $resource = new FooWebResource($response, $url);
+
+        $this->assertInstanceOf(FooWebResource::class, $resource);
+        $this->assertEquals($originalContent, $resource->getContent());
+        $this->assertEquals($url, $resource->getUrl());
+
+        /* @var StreamInterface|Mock $updatedContentStreamInterface */
+        $updatedContentStreamInterface = \Mockery::mock(StreamInterface::class);
+
+        /* @var ResponseInterface|Mock $updatedResponse */
+        $updatedResponse = $this->createResponse('text/html', $updatedContent);
+
+        $response
+            ->shouldReceive('withBody')
+            ->with($updatedContentStreamInterface)
+            ->andReturn($updatedResponse);
+
+        $updatedResource = $resource->setContent($updatedContentStreamInterface);
+
+        $this->assertNotEquals(spl_object_hash($resource), spl_object_hash($updatedResource));
+        $this->assertInstanceOf(FooWebResource::class, $updatedResource);
+        $this->assertEquals($updatedContent, $updatedResource->getContent());
+        $this->assertEquals($url, $updatedResource->getUrl());
+
+        $this->assertEquals($originalContent, $resource->getContent());
+        $this->assertEquals($url, $resource->getUrl());
     }
 
     /**
