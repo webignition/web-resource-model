@@ -4,14 +4,17 @@ namespace webignition\WebResource;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use \webignition\InternetMediaType\InternetMediaType;
-use \webignition\InternetMediaType\Parser\Parser as InternetMediaTypeParser;
+use Psr\Http\Message\UriInterface;
+use webignition\InternetMediaType\Parser\ParseException as InternetMediaTypeParseException;
+use webignition\InternetMediaType\Parser\Parser as InternetMediaTypeParser;
+use webignition\InternetMediaTypeInterface\InternetMediaTypeInterface;
+use webignition\WebResourceInterfaces\WebResourceInterface;
 
 /**
  * Models a web-based resource by providing access to commonly-used aspects
  * of a PSR-7 HTTP response
  */
-class WebResource
+class WebResource implements WebResourceInterface
 {
     const HEADER_CONTENT_TYPE = 'content-type';
 
@@ -21,39 +24,40 @@ class WebResource
     private $response;
 
     /**
-     * @var InternetMediaType
+     * @var InternetMediaTypeInterface
      */
     private $contentType;
 
     /**
-     * @var string
+     * @var UriInterface
      */
-    private $url;
+    private $uri;
 
     /**
      * @param ResponseInterface $response
-     * @param string|null $url
+     * @param UriInterface|null $uri
+     *
+     * @throws InternetMediaTypeParseException
      */
-    public function __construct(ResponseInterface $response, $url = null)
+    public function __construct(ResponseInterface $response, UriInterface $uri = null)
     {
         $this->response = $response;
-        $this->url = $url;
-
-        $internetMediaTypeParser = new InternetMediaTypeParser();
-        $internetMediaTypeParserConfiguration = $internetMediaTypeParser->getConfiguration();
-        $internetMediaTypeParserConfiguration->enableIgnoreInvalidAttributes();
-        $internetMediaTypeParserConfiguration->enableAttemptToRecoverFromInvalidInternalCharacter();
-
-        $contentTypeHeader = $response->getHeader(self::HEADER_CONTENT_TYPE);
-        $contentTypeString = empty($contentTypeHeader)
-            ? ''
-            : $contentTypeHeader[0];
-
-        $this->contentType = $internetMediaTypeParser->parse($contentTypeString);
+        $this->uri = $uri;
+        $this->contentType = $this->createContentTypeFromResponse($response);
     }
 
     /**
-     * @return ResponseInterface
+     * {@inheritdoc}
+     */
+    public function setResponse(ResponseInterface $response)
+    {
+        $className = get_class($this);
+
+        return new $className($response, $this->getUri());
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function getResponse()
     {
@@ -61,15 +65,25 @@ class WebResource
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
-    public function getUrl()
+    public function setUri(UriInterface $uri)
     {
-        return $this->url;
+        $className = get_class($this);
+
+        return new $className($this->getResponse(), $uri);
     }
 
     /**
-     * @return InternetMediaType
+     * {@inheritdoc}
+     */
+    public function getUri()
+    {
+        return $this->uri;
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function getContentType()
     {
@@ -77,7 +91,26 @@ class WebResource
     }
 
     /**
-     * @return string|null
+     * {@inheritdoc}
+     */
+    public function setBody(StreamInterface $body)
+    {
+        $newResponse = $this->response->withBody($body);
+        $className = get_class($this);
+
+        return new $className($newResponse, $this->getUri());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBody()
+    {
+        return $this->response->getBody();
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function getContent()
     {
@@ -92,17 +125,38 @@ class WebResource
     }
 
     /**
-     * @param StreamInterface $content
+     * A generic WebResource can be used to model anything.
      *
-     * @return WebResource
+     * Classes extending WebResource should limit the types of content that they can model
+     * by overriding this method directly, or by overriding the getAllowedContentTypeStrings() or
+     * getAllowedContentTypePatterns() methods.
+     *
+     * {@inheritdoc}
      */
-    public function setContent(StreamInterface $content)
+    public static function models(InternetMediaTypeInterface $mediaType)
     {
-        $updatedResponse = $this->getResponse();
-        $updatedResponse = $updatedResponse->withBody($content);
+        return true;
+    }
 
-        $resourceClassName = get_class($this);
+    /**
+     * @param ResponseInterface $response
+     *
+     * @return InternetMediaTypeInterface
+     *
+     * @throws InternetMediaTypeParseException
+     */
+    private function createContentTypeFromResponse(ResponseInterface $response)
+    {
+        $internetMediaTypeParser = new InternetMediaTypeParser();
+        $internetMediaTypeParserConfiguration = $internetMediaTypeParser->getConfiguration();
+        $internetMediaTypeParserConfiguration->enableIgnoreInvalidAttributes();
+        $internetMediaTypeParserConfiguration->enableAttemptToRecoverFromInvalidInternalCharacter();
 
-        return new $resourceClassName($updatedResponse, $this->getUrl());
+        $contentTypeHeader = $response->getHeader(self::HEADER_CONTENT_TYPE);
+        $contentTypeString = empty($contentTypeHeader)
+            ? ''
+            : $contentTypeHeader[0];
+
+        return $internetMediaTypeParser->parse($contentTypeString);
     }
 }

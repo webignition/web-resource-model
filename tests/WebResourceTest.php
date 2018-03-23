@@ -2,12 +2,14 @@
 
 namespace webignition\Tests\WebResource;
 
-use Mockery\Mock;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UriInterface;
 use webignition\InternetMediaType\InternetMediaType;
-use webignition\Tests\WebResource\Implementation\FooWebResource;
+use webignition\InternetMediaType\Parser\ParseException as InternetMediaTypeParseException;
+use webignition\Tests\WebResource\Factory\ResponseFactory;
 use webignition\WebResource\WebResource;
+use webignition\WebResourceInterfaces\WebResourceInterface;
 
 class WebResourceTest extends \PHPUnit_Framework_TestCase
 {
@@ -15,16 +17,18 @@ class WebResourceTest extends \PHPUnit_Framework_TestCase
      * @dataProvider createDataProvider
      *
      * @param ResponseInterface $response
-     * @param string $url
      * @param string $expectedContentType
      * @param string $expectedContent
+     *
+     * @throws InternetMediaTypeParseException
      */
-    public function testCreate(ResponseInterface $response, $url, $expectedContentType, $expectedContent)
+    public function testCreate(ResponseInterface $response, $expectedContentType, $expectedContent)
     {
-        $resource = new WebResource($response, $url);
+        $uri = \Mockery::mock(UriInterface::class);
+        $resource = new WebResource($response, $uri);
 
         $this->assertEquals($response, $resource->getResponse());
-        $this->assertEquals($url, $resource->getUrl());
+        $this->assertEquals($uri, $resource->getUri());
 
         $contentType = $resource->getContentType();
         $this->assertInstanceOf(InternetMediaType::class, $contentType);
@@ -42,113 +46,217 @@ class WebResourceTest extends \PHPUnit_Framework_TestCase
 
         return [
             'text/plain, empty content, no url' => [
-                'response' => $this->createResponse('text/plain', ''),
-                'url' => null,
+                'response' => ResponseFactory::create('text/plain', ''),
                 'expectedContentType' => 'text/plain',
                 'expectedContent' => '',
             ],
             'text/plain, empty content' => [
-                'response' => $this->createResponse('text/plain', ''),
-                'url' => 'http://example.com/foo.txt',
+                'response' => ResponseFactory::create('text/plain', ''),
                 'expectedContentType' => 'text/plain',
                 'expectedContent' => '',
             ],
             'text/plain, non-empty content' => [
-                'response' => $this->createResponse('text/plain', 'foo'),
-                'url' => 'http://example.com/foo.txt',
+                'response' => ResponseFactory::create('text/plain', 'foo'),
                 'expectedContentType' => 'text/plain',
                 'expectedContent' => 'foo',
             ],
             'text/html, non-empty content' => [
-                'response' => $this->createResponse('text/html', $htmlContent),
-                'url' => 'http://example.com/foo.html',
+                'response' => ResponseFactory::create('text/html', $htmlContent),
                 'expectedContentType' => 'text/html',
                 'expectedContent' => $htmlContent,
             ],
             'text/html, gzipped content' => [
-                'response' => $this->createResponse('text/html', gzencode($htmlContent)),
-                'url' => 'http://example.com/foo.html',
+                'response' => ResponseFactory::create('text/html', gzencode($htmlContent)),
                 'expectedContentType' => 'text/html',
                 'expectedContent' => $htmlContent,
             ],
             'text/html, bad gzipped content' => [
-                'response' => $this->createResponse('text/html', 'foo'),
-                'url' => 'http://example.com/foo.html',
+                'response' => ResponseFactory::create('text/html', 'foo'),
                 'expectedContentType' => 'text/html',
                 'expectedContent' => 'foo',
             ],
         ];
     }
 
-    public function testSetContent()
-    {
-        $url = 'http://example.com';
-        $originalContent = 'foo';
-        $updatedContent = 'bar';
+    /**
+     * @dataProvider setResponseDataProvider
+     *
+     * @param WebResourceInterface $webResource
+     * @param ResponseInterface $response
+     * @param string $expectedResourceClassName
+     */
+    public function testSetResponse(
+        WebResourceInterface $webResource,
+        ResponseInterface $response,
+        $expectedResourceClassName
+    ) {
+        $newWebResource = $webResource->setResponse($response);
 
-        $response = $this->createResponse('text/html', $originalContent);
+        $this->assertNotEquals(spl_object_hash($webResource), spl_object_hash($newWebResource));
 
-        $resource = new FooWebResource($response, $url);
-
-        $this->assertInstanceOf(FooWebResource::class, $resource);
-        $this->assertEquals($originalContent, $resource->getContent());
-        $this->assertEquals($url, $resource->getUrl());
-
-        /* @var StreamInterface|Mock $updatedContentStreamInterface */
-        $updatedContentStreamInterface = \Mockery::mock(StreamInterface::class);
-
-        /* @var ResponseInterface|Mock $updatedResponse */
-        $updatedResponse = $this->createResponse('text/html', $updatedContent);
-
-        $response
-            ->shouldReceive('withBody')
-            ->with($updatedContentStreamInterface)
-            ->andReturn($updatedResponse);
-
-        $updatedResource = $resource->setContent($updatedContentStreamInterface);
-
-        $this->assertNotEquals(spl_object_hash($resource), spl_object_hash($updatedResource));
-        $this->assertInstanceOf(FooWebResource::class, $updatedResource);
-        $this->assertEquals($updatedContent, $updatedResource->getContent());
-        $this->assertEquals($url, $updatedResource->getUrl());
-
-        $this->assertEquals($originalContent, $resource->getContent());
-        $this->assertEquals($url, $resource->getUrl());
+        $this->assertEquals($response, $newWebResource->getResponse());
+        $this->assertEquals(spl_object_hash($webResource->getUri()), spl_object_hash($newWebResource->getUri()));
+        $this->assertInstanceOf($expectedResourceClassName, $newWebResource);
     }
 
     /**
-     * @param string $contentType
-     * @param string $content
+     * @return array
      *
-     * @return Mock|ResponseInterface
+     * @throws InternetMediaTypeParseException
      */
-    private function createResponse($contentType, $content)
+    public function setResponseDataProvider()
     {
-        /* @var ResponseInterface|Mock $response */
-        $response = \Mockery::mock(ResponseInterface::class);
+        $uri = \Mockery::mock(UriInterface::class);
+        $currentResponse = ResponseFactory::create('text/html');
 
+        return [
+            'WebResource instance' => [
+                'webResource' => new WebResource($currentResponse, $uri),
+                'response' => ResponseFactory::create('text/html'),
+                'expectedResourceClassName' => WebResource::class,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider setUriDataProvider
+     *
+     * @param WebResourceInterface $webResource
+     * @param UriInterface $uri
+     * @param string $expectedResourceClassName
+     */
+    public function testSetUri(WebResourceInterface $webResource, UriInterface $uri, $expectedResourceClassName)
+    {
+        $newWebResource = $webResource->setUri($uri);
+
+        $this->assertNotEquals(spl_object_hash($webResource), spl_object_hash($newWebResource));
+
+        $this->assertEquals(
+            spl_object_hash($webResource->getResponse()),
+            spl_object_hash($newWebResource->getResponse())
+        );
+        $this->assertEquals($uri, $newWebResource->getUri());
+        $this->assertInstanceOf($expectedResourceClassName, $newWebResource);
+    }
+
+    /**
+     * @return array
+     *
+     * @throws InternetMediaTypeParseException
+     */
+    public function setUriDataProvider()
+    {
+        $response = ResponseFactory::create('text/html');
+        $currentUri = \Mockery::mock(UriInterface::class);
+        $newUri = \Mockery::mock(UriInterface::class);
+
+        return [
+            'WebResource instance' => [
+                'webResource' => new WebResource($response, $currentUri),
+                'uri' => $newUri,
+                'expectedResourceClassName' => WebResource::class,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider setBodyDataProvider
+     *
+     * @param WebResourceInterface $webResource
+     * @param StreamInterface $body
+     * @param $expectedResourceClassName
+     */
+    public function testSetBody(WebResourceInterface $webResource, StreamInterface $body, $expectedResourceClassName)
+    {
+        $newWebResource = $webResource->setBody($body);
+
+        $this->assertNotEquals(spl_object_hash($webResource), spl_object_hash($newWebResource));
+        $this->assertNotEquals(
+            spl_object_hash($webResource->getResponse()),
+            spl_object_hash($newWebResource->getResponse())
+        );
+
+        $this->assertEquals($body, $newWebResource->getBody());
+
+        $this->assertEquals(spl_object_hash($webResource->getUri()), spl_object_hash($newWebResource->getUri()));
+        $this->assertInstanceOf($expectedResourceClassName, $newWebResource);
+    }
+
+    /**
+     * @return array
+     *
+     * @throws InternetMediaTypeParseException
+     */
+    public function setBodyDataProvider()
+    {
+        $newBody = \Mockery::mock(StreamInterface::class);
+        $newResponse = ResponseFactory::create('text/html', '', $newBody);
+
+        $response = ResponseFactory::create('text/html');
         $response
-            ->shouldReceive('getHeader')
-            ->once()
-            ->with(WebResource::HEADER_CONTENT_TYPE)
-            ->andReturn([
-                $contentType,
-            ]);
+            ->shouldReceive('withBody')
+            ->andReturn($newResponse);
 
-        /* @var StreamInterface|Mock $bodyStream */
-        $bodyStream = \Mockery::mock(StreamInterface::class);
-        $bodyStream
-            ->shouldReceive('__toString')
-            ->once()
-            ->withNoArgs()
-            ->andReturn($content);
+        $uri = \Mockery::mock(UriInterface::class);
 
-        $response
-            ->shouldReceive('getBody')
-            ->once()
-            ->withNoArgs()
-            ->andReturn($bodyStream);
+        return [
+            'WebResource instance' => [
+                'webResource' => new WebResource($response, $uri),
+                'body' => $newBody,
+                'expectedResourceClassName' => WebResource::class,
+            ],
+        ];
+    }
 
-        return $response;
+    /**
+     * @dataProvider modelsDataProvider
+     *
+     * @param string $contentTypeType
+     * @param string $contentTypeSubtype
+     */
+    public function testModels($contentTypeType, $contentTypeSubtype)
+    {
+        $contentType = new InternetMediaType();
+        $contentType->setType($contentTypeType);
+        $contentType->setSubtype($contentTypeSubtype);
+
+        $this->assertTrue(WebResource::models($contentType));
+    }
+
+    /**
+     * @return array
+     */
+    public function modelsDataProvider()
+    {
+        return [
+            'text/plain' => [
+                'contentTypeType' => 'text',
+                'contentTypeSubtype' => 'plain',
+            ],
+            'text/html' => [
+                'contentTypeType' => 'text',
+                'contentTypeSubtype' => 'html',
+            ],
+            'application/xml' => [
+                'contentTypeType' => 'application',
+                'contentTypeSubtype' => 'xml',
+            ],
+            'application/json' => [
+                'contentTypeType' => 'application',
+                'contentTypeSubtype' => 'json',
+            ],
+            'application/octetstream' => [
+                'contentTypeType' => 'application',
+                'contentTypeSubtype' => 'octetstream',
+            ],
+            'image/png' => [
+                'contentTypeType' => 'image',
+                'contentTypeSubtype' => 'png',
+            ],
+            'image/jpeg' => [
+                'contentTypeType' => 'image',
+                'contentTypeSubtype' => 'jpeg',
+            ],
+        ];
     }
 }
