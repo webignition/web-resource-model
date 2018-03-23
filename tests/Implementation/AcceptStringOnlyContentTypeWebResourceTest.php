@@ -4,8 +4,8 @@ namespace webignition\Tests\WebResource\Implementation;
 
 use webignition\InternetMediaType\InternetMediaType;
 use webignition\InternetMediaType\Parser\ParseException as InternetMediaTypeParseException;
-use webignition\Tests\WebResource\Factory\ResponseFactory;
 use webignition\WebResource\Exception\InvalidContentTypeException;
+use webignition\WebResource\TestingTools\ResponseFactory;
 
 class AcceptStringOnlyContentTypeWebResourceTest extends AbstractSpecificContentTypeWebResourceTest
 {

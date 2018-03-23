@@ -7,7 +7,7 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use webignition\InternetMediaType\InternetMediaType;
 use webignition\InternetMediaType\Parser\ParseException as InternetMediaTypeParseException;
-use webignition\Tests\WebResource\Factory\ResponseFactory;
+use webignition\WebResource\TestingTools\ResponseFactory;
 use webignition\WebResource\WebResource;
 use webignition\WebResourceInterfaces\WebResourceInterface;
 

@@ -4,9 +4,9 @@ namespace webignition\Tests\WebResource;
 
 use Psr\Http\Message\ResponseInterface;
 use webignition\InternetMediaType\Parser\ParseException as InternetMediaTypeParseException;
-use webignition\Tests\WebResource\Factory\ResponseFactory;
 use webignition\WebResource\Exception\InvalidContentTypeException;
 use webignition\WebResource\SpecificContentTypeWebResource;
+use webignition\WebResource\TestingTools\ResponseFactory;
 
 class SpecificContentTypeWebResourceTest extends \PHPUnit_Framework_TestCase
 {
