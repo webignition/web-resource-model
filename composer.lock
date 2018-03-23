@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "005063c19a4f035d290564321bb62c3f",
+    "content-hash": "c6753a1bc83f38459df539fa0f5bc888",
     "packages": [
         {
             "name": "psr/http-message",
@@ -288,16 +288,16 @@
         },
         {
             "name": "webignition/web-resource-interfaces",
-            "version": "0.8",
+            "version": "0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webignition/web-resource-interfaces.git",
-                "reference": "e63c525c6427b350ed74b683cb8a2484d9419748"
+                "reference": "90705b3c5e571a9046b52bf033ea23c3cfcf5ade"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webignition/web-resource-interfaces/zipball/e63c525c6427b350ed74b683cb8a2484d9419748",
-                "reference": "e63c525c6427b350ed74b683cb8a2484d9419748",
+                "url": "https://api.github.com/repos/webignition/web-resource-interfaces/zipball/90705b3c5e571a9046b52bf033ea23c3cfcf5ade",
+                "reference": "90705b3c5e571a9046b52bf033ea23c3cfcf5ade",
                 "shasum": ""
             },
             "require": {
@@ -330,7 +330,7 @@
                 "psr-7",
                 "web-page"
             ],
-            "time": "2018-03-22T14:35:36+00:00"
+            "time": "2018-03-23T14:31:08+00:00"
         }
     ],
     "packages-dev": [

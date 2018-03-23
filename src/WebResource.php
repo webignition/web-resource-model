@@ -159,4 +159,12 @@ class WebResource implements WebResourceInterface
 
         return $internetMediaTypeParser->parse($contentTypeString);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function getModelledContentTypeStrings()
+    {
+        return [];
+    }
 }

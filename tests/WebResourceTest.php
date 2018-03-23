@@ -259,4 +259,9 @@ class WebResourceTest extends \PHPUnit_Framework_TestCase
             ],
         ];
     }
+
+    public function testGetModelledContentTypeStrings()
+    {
+        $this->assertEquals([], WebResource::getModelledContentTypeStrings());
+    }
 }
