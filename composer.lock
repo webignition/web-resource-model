@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "64108c9826a6bc238ca1d188725d3fe1",
+    "content-hash": "c7dca5564bb63e30cad00f0ec9506896",
     "packages": [
         {
             "name": "psr/http-message",
@@ -288,16 +288,16 @@
         },
         {
             "name": "webignition/web-resource-interfaces",
-            "version": "0.10",
+            "version": "0.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webignition/web-resource-interfaces.git",
-                "reference": "c9896e92aba022e3bc5ed79afdc74849fdc470af"
+                "reference": "7e734ccbfde87ba7dd1b4b0ab3b1a5ad77cf5e3a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webignition/web-resource-interfaces/zipball/c9896e92aba022e3bc5ed79afdc74849fdc470af",
-                "reference": "c9896e92aba022e3bc5ed79afdc74849fdc470af",
+                "url": "https://api.github.com/repos/webignition/web-resource-interfaces/zipball/7e734ccbfde87ba7dd1b4b0ab3b1a5ad77cf5e3a",
+                "reference": "7e734ccbfde87ba7dd1b4b0ab3b1a5ad77cf5e3a",
                 "shasum": ""
             },
             "require": {
@@ -311,7 +311,6 @@
                     "webignition\\WebResourceInterfaces\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -324,13 +323,17 @@
             "description": "Interfaces for web resource models and services to retrieve and create them",
             "homepage": "https://github.com/webignition/web-resource-interfaces",
             "keywords": [
-                "Sitemap",
                 "json-document",
                 "model",
                 "psr-7",
+                "sitemap",
                 "web-page"
             ],
-            "time": "2018-03-28T11:00:16+00:00"
+            "support": {
+                "source": "https://github.com/webignition/web-resource-interfaces/tree/0.11",
+                "issues": "https://github.com/webignition/web-resource-interfaces/issues"
+            },
+            "time": "2018-03-29T17:08:09+00:00"
         }
     ],
     "packages-dev": [

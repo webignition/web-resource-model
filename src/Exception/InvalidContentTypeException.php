@@ -2,8 +2,6 @@
 
 namespace webignition\WebResource\Exception;
 
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
 use webignition\InternetMediaTypeInterface\InternetMediaTypeInterface;
 use webignition\WebResourceInterfaces\InvalidContentTypeExceptionInterface;
 
@@ -19,14 +17,9 @@ class InvalidContentTypeException extends \Exception implements InvalidContentTy
 
     /**
      * @param InternetMediaTypeInterface $responseContentType
-     * @param ResponseInterface $response
-     * @param RequestInterface $request
      */
-    public function __construct(
-        InternetMediaTypeInterface $responseContentType,
-        ResponseInterface $response = null,
-        RequestInterface $request = null
-    ) {
+    public function __construct(InternetMediaTypeInterface $responseContentType)
+    {
         parent::__construct(sprintf(self::MESSAGE, $responseContentType->getTypeSubtypeString()), self::CODE);
 
         $this->responseContentType = $responseContentType;
