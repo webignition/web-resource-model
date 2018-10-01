@@ -55,7 +55,7 @@ class SpecificContentTypeWebResource extends WebResource
      *
      * {@inheritdoc}
      */
-    public static function models(InternetMediaTypeInterface $mediaType)
+    public static function models(InternetMediaTypeInterface $mediaType): bool
     {
         $contentTypeSubtypeString = $mediaType->getTypeSubtypeString();
 
@@ -128,7 +128,7 @@ class SpecificContentTypeWebResource extends WebResource
      *
      * @return string[]
      */
-    protected static function getAllowedContentTypeStrings()
+    protected static function getAllowedContentTypeStrings(): ?array
     {
         return [];
     }
@@ -142,7 +142,7 @@ class SpecificContentTypeWebResource extends WebResource
      *
      * @return string[]
      */
-    protected static function getAllowedContentTypePatterns()
+    protected static function getAllowedContentTypePatterns(): ?array
     {
         return [];
     }

@@ -15,9 +15,6 @@ class InvalidContentTypeException extends \Exception implements InvalidContentTy
      */
     private $responseContentType;
 
-    /**
-     * @param InternetMediaTypeInterface $responseContentType
-     */
     public function __construct(InternetMediaTypeInterface $responseContentType)
     {
         parent::__construct(sprintf(self::MESSAGE, $responseContentType->getTypeSubtypeString()), self::CODE);
@@ -25,10 +22,7 @@ class InvalidContentTypeException extends \Exception implements InvalidContentTy
         $this->responseContentType = $responseContentType;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getContentType()
+    public function getContentType(): InternetMediaTypeInterface
     {
         return $this->responseContentType;
     }

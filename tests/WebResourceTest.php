@@ -11,7 +11,7 @@ use webignition\WebResource\TestingTools\ResponseFactory;
 use webignition\WebResource\WebResource;
 use webignition\WebResourceInterfaces\WebResourceInterface;
 
-class WebResourceTest extends \PHPUnit_Framework_TestCase
+class WebResourceTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider createDataProvider

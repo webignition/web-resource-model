@@ -19,6 +19,8 @@ class AcceptPatternOnlyContentTypeWebResourceTest extends AbstractSpecificConten
      */
     public function testCreateSuccess($contentTypeString)
     {
+        $this->expectNotToPerformAssertions();
+
         $response = ResponseFactory::create($contentTypeString);
 
         new AcceptPatternOnlyContentTypeWebResource($response);

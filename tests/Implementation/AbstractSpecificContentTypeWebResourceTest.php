@@ -2,7 +2,7 @@
 
 namespace webignition\Tests\WebResource\Implementation;
 
-abstract class AbstractSpecificContentTypeWebResourceTest extends \PHPUnit_Framework_TestCase
+abstract class AbstractSpecificContentTypeWebResourceTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @return array

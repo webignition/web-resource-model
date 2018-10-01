@@ -8,7 +8,7 @@ use Psr\Http\Message\ResponseInterface;
 use webignition\InternetMediaTypeInterface\InternetMediaTypeInterface;
 use webignition\WebResource\Exception\InvalidContentTypeException;
 
-class InvalidContentTypeExceptionTest extends \PHPUnit_Framework_TestCase
+class InvalidContentTypeExceptionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider getContentTypeDataProvider

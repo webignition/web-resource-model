@@ -6,10 +6,7 @@ use webignition\WebResource\SpecificContentTypeWebResource;
 
 class AcceptStringOrPatternContentTypeWebResource extends SpecificContentTypeWebResource
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected static function getAllowedContentTypeStrings()
+    protected static function getAllowedContentTypeStrings(): array
     {
         return [
             'text/plain',
@@ -17,10 +14,7 @@ class AcceptStringOrPatternContentTypeWebResource extends SpecificContentTypeWeb
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected static function getAllowedContentTypePatterns()
+    protected static function getAllowedContentTypePatterns(): array
     {
         return [
             '/application\/./'

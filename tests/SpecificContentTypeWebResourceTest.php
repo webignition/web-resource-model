@@ -8,7 +8,7 @@ use webignition\WebResource\Exception\InvalidContentTypeException;
 use webignition\WebResource\SpecificContentTypeWebResource;
 use webignition\WebResource\TestingTools\ResponseFactory;
 
-class SpecificContentTypeWebResourceTest extends \PHPUnit_Framework_TestCase
+class SpecificContentTypeWebResourceTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider createValidContentTypeDataProvider

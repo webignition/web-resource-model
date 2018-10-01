@@ -19,6 +19,8 @@ class AcceptAllContentTypeWebResourceTest extends AbstractSpecificContentTypeWeb
      */
     public function testCreateSuccess($contentTypeString)
     {
+        $this->expectNotToPerformAssertions();
+
         $response = ResponseFactory::create($contentTypeString);
 
         new AcceptAllContentTypeWebResource($response);

@@ -6,18 +6,12 @@ use webignition\WebResource\SpecificContentTypeWebResource;
 
 class AcceptNoneContentTypeWebResource extends SpecificContentTypeWebResource
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected static function getAllowedContentTypeStrings()
+    protected static function getAllowedContentTypeStrings(): ?array
     {
         return null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected static function getAllowedContentTypePatterns()
+    protected static function getAllowedContentTypePatterns(): ?array
     {
         return null;
     }

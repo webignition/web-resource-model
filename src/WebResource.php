@@ -46,54 +46,36 @@ class WebResource implements WebResourceInterface
         $this->contentType = $this->createContentTypeFromResponse($response);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setResponse(ResponseInterface $response)
+    public function setResponse(ResponseInterface $response): WebResourceInterface
     {
         $className = get_class($this);
 
         return new $className($response, $this->getUri());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getResponse()
+    public function getResponse(): ResponseInterface
     {
         return $this->response;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setUri(UriInterface $uri)
+    public function setUri(UriInterface $uri): WebResourceInterface
     {
         $className = get_class($this);
 
         return new $className($this->getResponse(), $uri);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getUri()
+    public function getUri(): UriInterface
     {
         return $this->uri;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getContentType()
+    public function getContentType(): InternetMediaTypeInterface
     {
         return $this->contentType;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setBody(StreamInterface $body)
+    public function setBody(StreamInterface $body): WebResourceInterface
     {
         $newResponse = $this->response->withBody($body);
         $className = get_class($this);
@@ -101,18 +83,12 @@ class WebResource implements WebResourceInterface
         return new $className($newResponse, $this->getUri());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getBody()
+    public function getBody(): ?StreamInterface
     {
         return $this->response->getBody();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getContent()
+    public function getContent(): string
     {
         $resourceContent = (string)$this->response->getBody();
         $content = @gzdecode($resourceContent);
@@ -133,7 +109,7 @@ class WebResource implements WebResourceInterface
      *
      * {@inheritdoc}
      */
-    public static function models(InternetMediaTypeInterface $mediaType)
+    public static function models(InternetMediaTypeInterface $mediaType): bool
     {
         return true;
     }
@@ -145,7 +121,7 @@ class WebResource implements WebResourceInterface
      *
      * @throws InternetMediaTypeParseException
      */
-    private function createContentTypeFromResponse(ResponseInterface $response)
+    private function createContentTypeFromResponse(ResponseInterface $response): InternetMediaTypeInterface
     {
         $internetMediaTypeParser = new InternetMediaTypeParser();
         $internetMediaTypeParserConfiguration = $internetMediaTypeParser->getConfiguration();
@@ -163,7 +139,7 @@ class WebResource implements WebResourceInterface
     /**
      * {@inheritdoc}
      */
-    public static function getModelledContentTypeStrings()
+    public static function getModelledContentTypeStrings(): array
     {
         return [];
     }
