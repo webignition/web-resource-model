@@ -2,67 +2,37 @@
 
 namespace webignition\WebResource;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
-use webignition\InternetMediaType\Parser\ParseException as InternetMediaTypeParseException;
-use webignition\InternetMediaType\Parser\Parser as InternetMediaTypeParser;
 use webignition\InternetMediaTypeInterface\InternetMediaTypeInterface;
 use webignition\WebResourceInterfaces\WebResourceInterface;
 
-/**
- * Models a web-based resource by providing access to commonly-used aspects
- * of a PSR-7 HTTP response
- */
 class WebResource implements WebResourceInterface
 {
-    const HEADER_CONTENT_TYPE = 'content-type';
-
     /**
-     * @var ResponseInterface
+     * @var UriInterface
      */
-    private $response;
+    protected $uri;
 
     /**
      * @var InternetMediaTypeInterface
      */
-    private $contentType;
+    protected $contentType;
 
     /**
-     * @var UriInterface
+     * @var string
      */
-    private $uri;
+    private $content;
 
-    /**
-     * @param ResponseInterface $response
-     * @param UriInterface|null $uri
-     *
-     * @throws InternetMediaTypeParseException
-     */
-    public function __construct(ResponseInterface $response, UriInterface $uri = null)
+    public function __construct(UriInterface $uri, InternetMediaTypeInterface $contentType, string $content)
     {
-        $this->response = $response;
         $this->uri = $uri;
-        $this->contentType = $this->createContentTypeFromResponse($response);
-    }
-
-    public function setResponse(ResponseInterface $response): WebResourceInterface
-    {
-        $className = get_class($this);
-
-        return new $className($response, $this->getUri());
-    }
-
-    public function getResponse(): ResponseInterface
-    {
-        return $this->response;
+        $this->contentType = $contentType;
+        $this->content = $content;
     }
 
     public function setUri(UriInterface $uri): WebResourceInterface
     {
-        $className = get_class($this);
-
-        return new $className($this->getResponse(), $uri);
+        return $this->createNewInstance($uri, $this->contentType, $this->content);
     }
 
     public function getUri(): UriInterface
@@ -70,34 +40,34 @@ class WebResource implements WebResourceInterface
         return $this->uri;
     }
 
+    public function setContentType(InternetMediaTypeInterface $contentType): WebResourceInterface
+    {
+        return $this->createNewInstance($this->uri, $contentType, $this->content);
+    }
+
     public function getContentType(): InternetMediaTypeInterface
     {
         return $this->contentType;
     }
 
-    public function setBody(StreamInterface $body): WebResourceInterface
+    public function setContent(string $content): WebResourceInterface
     {
-        $newResponse = $this->response->withBody($body);
-        $className = get_class($this);
-
-        return new $className($newResponse, $this->getUri());
-    }
-
-    public function getBody(): ?StreamInterface
-    {
-        return $this->response->getBody();
+        return $this->createNewInstance($this->uri, $this->contentType, $content);
     }
 
     public function getContent(): string
     {
-        $resourceContent = (string)$this->response->getBody();
-        $content = @gzdecode($resourceContent);
+        return $this->content;
+    }
 
-        if (false === $content) {
-            $content = $resourceContent;
-        }
+    private function createNewInstance(
+        UriInterface $uri,
+        InternetMediaTypeInterface $contentType,
+        string $content
+    ): WebResourceInterface {
+        $className = get_class($this);
 
-        return $content;
+        return new $className($uri, $contentType, $content);
     }
 
     /**
@@ -112,28 +82,6 @@ class WebResource implements WebResourceInterface
     public static function models(InternetMediaTypeInterface $mediaType): bool
     {
         return true;
-    }
-
-    /**
-     * @param ResponseInterface $response
-     *
-     * @return InternetMediaTypeInterface
-     *
-     * @throws InternetMediaTypeParseException
-     */
-    private function createContentTypeFromResponse(ResponseInterface $response): InternetMediaTypeInterface
-    {
-        $internetMediaTypeParser = new InternetMediaTypeParser();
-        $internetMediaTypeParserConfiguration = $internetMediaTypeParser->getConfiguration();
-        $internetMediaTypeParserConfiguration->enableIgnoreInvalidAttributes();
-        $internetMediaTypeParserConfiguration->enableAttemptToRecoverFromInvalidInternalCharacter();
-
-        $contentTypeHeader = $response->getHeader(self::HEADER_CONTENT_TYPE);
-        $contentTypeString = empty($contentTypeHeader)
-            ? ''
-            : $contentTypeHeader[0];
-
-        return $internetMediaTypeParser->parse($contentTypeString);
     }
 
     /**
