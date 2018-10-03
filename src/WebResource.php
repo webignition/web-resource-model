@@ -4,7 +4,6 @@ namespace webignition\WebResource;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
-use webignition\InternetMediaType\Parser\Parser as InternetMediaTypeParser;
 use webignition\InternetMediaType\Parser\ParseException as InternetMediaTypeParseException;
 use webignition\InternetMediaTypeInterface\InternetMediaTypeInterface;
 use webignition\WebResource\Exception\ReadOnlyResponseException;
@@ -181,19 +180,14 @@ class WebResource implements WebResourceInterface
         return new self($args);
     }
 
-    private function createContentTypeFromResponse(): ?InternetMediaTypeInterface
+    protected function createContentTypeFromResponse(): ?InternetMediaTypeInterface
     {
         $contentType = null;
 
-        $internetMediaTypeParser = new InternetMediaTypeParser();
-        $internetMediaTypeParserConfiguration = $internetMediaTypeParser->getConfiguration();
-        $internetMediaTypeParserConfiguration->enableIgnoreInvalidAttributes();
-        $internetMediaTypeParserConfiguration->enableAttemptToRecoverFromInvalidInternalCharacter();
-
         try {
-            $contentType = $internetMediaTypeParser->parse($this->response->getHeaderLine(self::HEADER_CONTENT_TYPE));
+            $contentType = ContentTypeFactory::createFromResponse($this->response);
             $this->hasInvalidContentType = false;
-        } catch (InternetMediaTypeParseException $exception) {
+        } catch (InternetMediaTypeParseException $e) {
             $this->hasInvalidContentType = true;
         }
 
