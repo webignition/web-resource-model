@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4de83fb86b841bcd6b73e36329d08247",
+    "content-hash": "535a7c46a8f96d0f0c408e9daa21d207",
     "packages": [
         {
             "name": "psr/http-message",
@@ -288,16 +288,16 @@
         },
         {
             "name": "webignition/web-resource-interfaces",
-            "version": "2.2",
+            "version": "3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webignition/web-resource-interfaces.git",
-                "reference": "8e0cfeb835d73272d3c6f50184a5e6769da6caf0"
+                "reference": "e00e79c2e16ca826d3f6e0c080200cab158344ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webignition/web-resource-interfaces/zipball/8e0cfeb835d73272d3c6f50184a5e6769da6caf0",
-                "reference": "8e0cfeb835d73272d3c6f50184a5e6769da6caf0",
+                "url": "https://api.github.com/repos/webignition/web-resource-interfaces/zipball/e00e79c2e16ca826d3f6e0c080200cab158344ae",
+                "reference": "e00e79c2e16ca826d3f6e0c080200cab158344ae",
                 "shasum": ""
             },
             "require": {
@@ -333,7 +333,7 @@
                 "psr-7",
                 "web-page"
             ],
-            "time": "2018-10-02T15:38:28+00:00"
+            "time": "2018-10-03T14:13:41+00:00"
         }
     ],
     "packages-dev": [
@@ -441,16 +441,16 @@
         },
         {
             "name": "mockery/mockery",
-            "version": "1.1.0",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mockery/mockery.git",
-                "reference": "99e29d3596b16dabe4982548527d5ddf90232e99"
+                "reference": "100633629bf76d57430b86b7098cd6beb996a35a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mockery/mockery/zipball/99e29d3596b16dabe4982548527d5ddf90232e99",
-                "reference": "99e29d3596b16dabe4982548527d5ddf90232e99",
+                "url": "https://api.github.com/repos/mockery/mockery/zipball/100633629bf76d57430b86b7098cd6beb996a35a",
+                "reference": "100633629bf76d57430b86b7098cd6beb996a35a",
                 "shasum": ""
             },
             "require": {
@@ -459,8 +459,7 @@
                 "php": ">=5.6.0"
             },
             "require-dev": {
-                "phpdocumentor/phpdocumentor": "^2.9",
-                "phpunit/phpunit": "~5.7.10|~6.5"
+                "phpunit/phpunit": "~5.7.10|~6.5|~7.0"
             },
             "type": "library",
             "extra": {
@@ -503,7 +502,7 @@
                 "test double",
                 "testing"
             ],
-            "time": "2018-05-08T08:54:48+00:00"
+            "time": "2018-10-02T21:52:37+00:00"
         },
         {
             "name": "myclabs/deep-copy",

@@ -3,14 +3,18 @@
 namespace webignition\Tests\WebResource;
 
 use Mockery\MockInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use webignition\InternetMediaType\InternetMediaType;
 use webignition\InternetMediaTypeInterface\InternetMediaTypeInterface;
+use webignition\WebResource\Exception\ReadOnlyResponseException;
+use webignition\WebResource\Exception\UnseekableResponseException;
 use webignition\WebResource\WebResource;
 
 class WebResourceTest extends \PHPUnit\Framework\TestCase
 {
-    public function testCreate()
+    public function testCreateFromContent()
     {
         /* @var UriInterface|MockInterface $uri */
         $uri = \Mockery::mock(UriInterface::class);
@@ -20,11 +24,70 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
 
         $content = 'resource content';
 
-        $webResource = new WebResource($uri, $contentType, $content);
+        $webResource = WebResource::createFromContent($uri, $contentType, $content);
 
         $this->assertEquals($uri, $webResource->getUri());
         $this->assertEquals($contentType, $webResource->getContentType());
         $this->assertEquals($content, $webResource->getContent());
+        $this->assertNull($webResource->getResponse());
+    }
+
+    /**
+     * @dataProvider createFromResponseDataProvider
+     *
+     * @param string $responseContentType
+     * @param string $expectedContentType
+     * @param bool $expectedHasInvalidContentType
+     */
+    public function testCreateFromResponse(
+        string $responseContentType,
+        string $expectedContentType,
+        bool $expectedHasInvalidContentType
+    ) {
+        /* @var UriInterface|MockInterface $uri */
+        $uri = \Mockery::mock(UriInterface::class);
+
+        $responseBodyContent = 'response body content';
+
+        $responseBody = \Mockery::mock(StreamInterface::class);
+        $responseBody
+            ->shouldReceive('__toString')
+            ->andReturn($responseBodyContent);
+
+        /* @var ResponseInterface|MockInterface $response */
+        $response = \Mockery::mock(ResponseInterface::class);
+        $response
+            ->shouldReceive('getHeaderLine')
+            ->with(WebResource::HEADER_CONTENT_TYPE)
+            ->andReturn($responseContentType);
+
+        $response
+            ->shouldReceive('getBody')
+            ->andReturn($responseBody);
+
+        $webResource = WebResource::createFromResponse($uri, $response);
+
+        $this->assertEquals($uri, $webResource->getUri());
+        $this->assertEquals($expectedContentType, (string)$webResource->getContentType());
+        $this->assertEquals($expectedHasInvalidContentType, $webResource->hasInvalidContentType());
+        $this->assertEquals($responseBodyContent, $webResource->getContent());
+        $this->assertEquals($response, $webResource->getResponse());
+    }
+
+    public function createFromResponseDataProvider()
+    {
+        return [
+            'valid content type' => [
+                'responseContentTypeString' => 'text/html',
+                'expectedContentType' => 'text/html',
+                'expectedHasInvalidContentType' => false,
+            ],
+            'unparseable content type' => [
+                'responseContentTypeString' => 'f o o',
+                'expectedContentType' => '',
+                'expectedHasInvalidContentType' => true,
+            ],
+        ];
     }
 
     public function testSetUri()
@@ -37,7 +100,7 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
 
         $content = 'resource content';
 
-        $webResource = new WebResource($currentUri, $contentType, $content);
+        $webResource = WebResource::createFromContent($currentUri, $contentType, $content);
 
         /* @var UriInterface|MockInterface $newUri */
         $newUri = \Mockery::mock(UriInterface::class);
@@ -49,7 +112,7 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($newUri, $updatedWebResource->getUri());
     }
 
-    public function testSetContentType()
+    public function testSetContentTypeForResourceWithoutResponse()
     {
         /* @var UriInterface|MockInterface $uri */
         $uri = \Mockery::mock(UriInterface::class);
@@ -59,7 +122,7 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
 
         $content = 'resource content';
 
-        $webResource = new WebResource($uri, $currentContentType, $content);
+        $webResource = WebResource::createFromContent($uri, $currentContentType, $content);
 
         /* @var InternetMediaTypeInterface|MockInterface $newContentType */
         $newContentType = \Mockery::mock(InternetMediaTypeInterface::class);
@@ -71,7 +134,56 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($newContentType, $updatedWebResource->getContentType());
     }
 
-    public function testSetContent()
+    public function testSetContentTypeForResourceWithResponse()
+    {
+        /* @var UriInterface|MockInterface $uri */
+        $uri = \Mockery::mock(UriInterface::class);
+
+        $responseContentType = 'text/html';
+        $responseBodyContent = 'response body content';
+
+        $responseBody = \Mockery::mock(StreamInterface::class);
+        $responseBody
+            ->shouldReceive('__toString')
+            ->andReturn($responseBodyContent);
+
+        $updatedContentTypeString = 'foo/bar';
+        $updatedContentType = new InternetMediaType();
+        $updatedContentType->setType('foo');
+        $updatedContentType->setSubtype('bar');
+
+        /* @var ResponseInterface|MockInterface $updatedResponse */
+        $updatedResponse = \Mockery::mock(ResponseInterface::class);
+        $updatedResponse
+            ->shouldReceive('getHeaderLine')
+            ->with(WebResource::HEADER_CONTENT_TYPE)
+            ->andReturn($updatedContentTypeString);
+
+        /* @var ResponseInterface|MockInterface $response */
+        $response = \Mockery::mock(ResponseInterface::class);
+        $response
+            ->shouldReceive('getHeaderLine')
+            ->with(WebResource::HEADER_CONTENT_TYPE)
+            ->andReturn($responseContentType);
+
+        $response
+            ->shouldReceive('getBody')
+            ->andReturn($responseBody);
+
+        $response
+            ->shouldReceive('withHeader')
+            ->with(WebResource::HEADER_CONTENT_TYPE, $updatedContentTypeString)
+            ->andReturn($updatedResponse);
+
+        $webResource = WebResource::createFromResponse($uri, $response);
+
+        $updatedWebResource = $webResource->setContentType($updatedContentType);
+
+        $this->assertNotEquals(spl_object_hash($webResource), spl_object_hash($updatedWebResource));
+        $this->assertEquals(spl_object_hash($updatedResponse), spl_object_hash($updatedWebResource->getResponse()));
+    }
+
+    public function testSetContentForResourceWithoutResponse()
     {
         /* @var UriInterface|MockInterface $uri */
         $uri = \Mockery::mock(UriInterface::class);
@@ -81,7 +193,7 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
 
         $currentContent = 'resource content';
 
-        $webResource = new WebResource($uri, $contentType, $currentContent);
+        $webResource = WebResource::createFromContent($uri, $contentType, $currentContent);
 
         $newContent = 'updated resource content';
 
@@ -90,6 +202,173 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
         $this->assertNotEquals(spl_object_hash($webResource), spl_object_hash($updatedWebResource));
         $this->assertEquals($currentContent, $webResource->getContent());
         $this->assertEquals($newContent, $updatedWebResource->getContent());
+    }
+
+    public function testSetContentForResourceWithReadOnlyResource()
+    {
+        /* @var UriInterface|MockInterface $uri */
+        $uri = \Mockery::mock(UriInterface::class);
+
+        $contentTypeString = 'text/html';
+
+        $responseBodyContent = 'response body content';
+
+        $responseBody = \Mockery::mock(StreamInterface::class);
+        $responseBody
+            ->shouldReceive('__toString')
+            ->andReturn($responseBodyContent);
+
+        $responseBody
+            ->shouldReceive('isWritable')
+            ->andReturn(false);
+
+        /* @var ResponseInterface|MockInterface $response */
+        $response = \Mockery::mock(ResponseInterface::class);
+        $response
+            ->shouldReceive('getHeaderLine')
+            ->with(WebResource::HEADER_CONTENT_TYPE)
+            ->andReturn($contentTypeString);
+
+        $response
+            ->shouldReceive('getBody')
+            ->andReturn($responseBody);
+
+        $responseWebResource = WebResource::createFromResponse($uri, $response);
+
+        $this->expectException(ReadOnlyResponseException::class);
+
+        $responseWebResource->setContent('');
+    }
+
+    public function testSetContentForUnseekableResource()
+    {
+        /* @var UriInterface|MockInterface $uri */
+        $uri = \Mockery::mock(UriInterface::class);
+
+        $contentTypeString = 'text/html';
+
+        $responseBodyContent = 'response body content';
+
+        $responseBody = \Mockery::mock(StreamInterface::class);
+        $responseBody
+            ->shouldReceive('__toString')
+            ->andReturn($responseBodyContent);
+
+        $responseBody
+            ->shouldReceive('isWritable')
+            ->andReturn(true);
+
+        $responseBody
+            ->shouldReceive('isSeekable')
+            ->andReturn(false);
+
+        /* @var ResponseInterface|MockInterface $response */
+        $response = \Mockery::mock(ResponseInterface::class);
+        $response
+            ->shouldReceive('getHeaderLine')
+            ->with(WebResource::HEADER_CONTENT_TYPE)
+            ->andReturn($contentTypeString);
+
+        $response
+            ->shouldReceive('getBody')
+            ->andReturn($responseBody);
+
+        $responseWebResource = WebResource::createFromResponse($uri, $response);
+
+        $this->expectException(UnseekableResponseException::class);
+
+        $responseWebResource->setContent('');
+    }
+
+    public function testSetContentForWritableResource()
+    {
+        /* @var UriInterface|MockInterface $uri */
+        $uri = \Mockery::mock(UriInterface::class);
+
+        $contentTypeString = 'text/html';
+
+        $responseBodyContent = 'response body content';
+        $newResponseBodyContent = 'new response body content';
+
+        /* @var StreamInterface|MockInterface $responseBody */
+        $responseBody = \Mockery::mock(StreamInterface::class);
+        $responseBody
+            ->shouldReceive('__toString')
+            ->andReturn($responseBodyContent);
+
+        $responseBody
+            ->shouldReceive('isWritable')
+            ->andReturn(true);
+
+        $responseBody
+            ->shouldReceive('isSeekable')
+            ->andReturn(true);
+
+        $responseBody
+            ->shouldReceive('rewind');
+
+        $responseBody
+            ->shouldReceive('write')
+            ->with($newResponseBodyContent);
+
+        /* @var ResponseInterface|MockInterface $newResponse */
+        $newResponse = \Mockery::mock(ResponseInterface::class);
+        $newResponse
+            ->shouldReceive('getHeaderLine')
+            ->with(WebResource::HEADER_CONTENT_TYPE)
+            ->andReturn($contentTypeString);
+
+        /* @var ResponseInterface|MockInterface $response */
+        $response = \Mockery::mock(ResponseInterface::class);
+        $response
+            ->shouldReceive('getHeaderLine')
+            ->with(WebResource::HEADER_CONTENT_TYPE)
+            ->andReturn($contentTypeString);
+
+        $response
+            ->shouldReceive('getBody')
+            ->andReturn($responseBody);
+
+        $response
+            ->shouldReceive('withBody')
+            ->withArgs(function (StreamInterface $updatedResponseBody) use ($responseBody) {
+                $this->assertNotEquals(spl_object_hash($updatedResponseBody), spl_object_hash($responseBody));
+                return true;
+            })
+            ->andReturn($newResponse);
+
+        $responseWebResource = WebResource::createFromResponse($uri, $response);
+
+        $updatedResponseWebResource = $responseWebResource->setContent($newResponseBodyContent);
+
+        $this->assertNotEquals(spl_object_hash($updatedResponseWebResource), spl_object_hash($responseWebResource));
+    }
+
+    public function testSetResponseForResourceWithoutResponse()
+    {
+        /* @var UriInterface|MockInterface $uri */
+        $uri = \Mockery::mock(UriInterface::class);
+
+        /* @var InternetMediaTypeInterface|MockInterface $contentType */
+        $contentType = \Mockery::mock(InternetMediaTypeInterface::class);
+
+        $content = 'resource content';
+
+        $webResource = WebResource::createFromContent($uri, $contentType, $content);
+
+        $this->assertNull($webResource->getResponse());
+
+        /* @var ResponseInterface|MockInterface $response */
+        $response = \Mockery::mock(ResponseInterface::class);
+        $response
+            ->shouldReceive('getHeaderLine')
+            ->with(WebResource::HEADER_CONTENT_TYPE)
+            ->andReturn('text/html');
+
+        $updatedWebResource = $webResource->setResponse($response);
+
+        $this->assertNull($webResource->getResponse());
+        $this->assertEquals($response, $updatedWebResource->getResponse());
     }
 
     /**
