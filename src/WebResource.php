@@ -73,7 +73,9 @@ class WebResource implements WebResourceInterface
         string $content,
         ?InternetMediaTypeInterface $contentType
     ): WebResourceInterface {
-        return new self([
+        $className = get_called_class();
+
+        return new $className([
             self::ARG_URI => $uri,
             self::ARG_CONTENT_TYPE => $contentType,
             self::ARG_CONTENT => $content,
@@ -82,7 +84,9 @@ class WebResource implements WebResourceInterface
 
     public static function createFromResponse(UriInterface $uri, ResponseInterface $response): WebResourceInterface
     {
-        return new self([
+        $className = get_called_class();
+
+        return new $className([
             self::ARG_URI => $uri,
             self::ARG_RESPONSE => $response,
         ]);
@@ -187,7 +191,9 @@ class WebResource implements WebResourceInterface
             $args[self::ARG_RESPONSE] = $response;
         }
 
-        return new self($args);
+        $className = get_called_class();
+
+        return new $className($args);
     }
 
     /**
