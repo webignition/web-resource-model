@@ -24,7 +24,7 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
 
         $content = 'resource content';
 
-        $webResource = WebResource::createFromContent($uri, $contentType, $content);
+        $webResource = WebResource::createFromContent($uri, $content, $contentType);
 
         $this->assertEquals($uri, $webResource->getUri());
         $this->assertEquals($contentType, $webResource->getContentType());
@@ -100,7 +100,7 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
 
         $content = 'resource content';
 
-        $webResource = WebResource::createFromContent($currentUri, $contentType, $content);
+        $webResource = WebResource::createFromContent($currentUri, $content, $contentType);
 
         /* @var UriInterface|MockInterface $newUri */
         $newUri = \Mockery::mock(UriInterface::class);
@@ -122,7 +122,7 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
 
         $content = 'resource content';
 
-        $webResource = WebResource::createFromContent($uri, $currentContentType, $content);
+        $webResource = WebResource::createFromContent($uri, $content, $currentContentType);
 
         /* @var InternetMediaTypeInterface|MockInterface $newContentType */
         $newContentType = \Mockery::mock(InternetMediaTypeInterface::class);
@@ -193,7 +193,7 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
 
         $currentContent = 'resource content';
 
-        $webResource = WebResource::createFromContent($uri, $contentType, $currentContent);
+        $webResource = WebResource::createFromContent($uri, $currentContent, $contentType);
 
         $newContent = 'updated resource content';
 
@@ -354,7 +354,7 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
 
         $content = 'resource content';
 
-        $webResource = WebResource::createFromContent($uri, $contentType, $content);
+        $webResource = WebResource::createFromContent($uri, $content, $contentType);
 
         $this->assertNull($webResource->getResponse());
 

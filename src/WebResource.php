@@ -61,8 +61,8 @@ class WebResource implements WebResourceInterface
 
     public static function createFromContent(
         UriInterface $uri,
-        InternetMediaTypeInterface $contentType,
-        string $content
+        string $content,
+        ?InternetMediaTypeInterface $contentType
     ): WebResourceInterface {
         return new self([
             self::ARG_URI => $uri,
