@@ -6,6 +6,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 use webignition\InternetMediaType\Parser\ParseException as InternetMediaTypeParseException;
 use webignition\InternetMediaTypeInterface\InternetMediaTypeInterface;
+use webignition\WebResource\Exception\InvalidContentTypeException;
 use webignition\WebResource\Exception\ReadOnlyResponseException;
 use webignition\WebResource\Exception\UnseekableResponseException;
 use webignition\WebResourceInterfaces\WebResourceInterface;
@@ -44,6 +45,11 @@ class WebResource implements WebResourceInterface
      */
     private $hasInvalidContentType = null;
 
+    /**
+     * @param array $args
+     *
+     * @throws InvalidContentTypeException
+     */
     private function __construct(array $args)
     {
         $this->uri = $args[self::ARG_URI];
@@ -62,6 +68,12 @@ class WebResource implements WebResourceInterface
 
             $args[self::ARG_CONTENT_TYPE] = $contentType;
             $args[self::ARG_CONTENT] = null;
+        }
+
+        $contentType = $args[self::ARG_CONTENT_TYPE];
+
+        if (!empty($contentType) && !static::models($contentType)) {
+            throw new InvalidContentTypeException($contentType);
         }
 
         $this->contentType = $args[self::ARG_CONTENT_TYPE];
