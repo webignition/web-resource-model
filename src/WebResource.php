@@ -50,7 +50,7 @@ class WebResource implements WebResourceInterface
 
         if (isset($args[self::ARG_RESPONSE])) {
             $this->response = $args[self::ARG_RESPONSE];
-            $args[self::ARG_CONTENT_TYPE] = $this->createContentTypeFromResponse();
+            $args[self::ARG_CONTENT_TYPE] = $this->createContentTypeFromResponse($this->response);
             $args[self::ARG_CONTENT] = null;
         }
 
@@ -180,12 +180,12 @@ class WebResource implements WebResourceInterface
         return new self($args);
     }
 
-    protected function createContentTypeFromResponse(): ?InternetMediaTypeInterface
+    protected function createContentTypeFromResponse(ResponseInterface $response): ?InternetMediaTypeInterface
     {
         $contentType = null;
 
         try {
-            $contentType = ContentTypeFactory::createFromResponse($this->response);
+            $contentType = ContentTypeFactory::createFromResponse($response);
             $this->hasInvalidContentType = false;
         } catch (InternetMediaTypeParseException $e) {
             $this->hasInvalidContentType = true;
