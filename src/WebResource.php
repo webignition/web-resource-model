@@ -84,7 +84,7 @@ class WebResource implements WebResourceInterface
     public static function createFromContent(
         UriInterface $uri,
         string $content,
-        ?InternetMediaTypeInterface $contentType
+        ?InternetMediaTypeInterface $contentType = null
     ): WebResourceInterface {
         if (empty($contentType)) {
             $contentType = static::getDefaultContentType();

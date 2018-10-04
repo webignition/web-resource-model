@@ -14,13 +14,15 @@ use webignition\WebResource\WebResource;
 
 class WebResourceTest extends \PHPUnit\Framework\TestCase
 {
-    public function testCreateFromContent()
+    /**
+     * @dataProvider createFromContentDataProvider
+     *
+     * @param InternetMediaTypeInterface|null $contentType
+     */
+    public function testCreateFromContent(?InternetMediaTypeInterface $contentType)
     {
         /* @var UriInterface|MockInterface $uri */
         $uri = \Mockery::mock(UriInterface::class);
-
-        /* @var InternetMediaTypeInterface|MockInterface $contentType */
-        $contentType = \Mockery::mock(InternetMediaTypeInterface::class);
 
         $content = 'resource content';
 
@@ -30,6 +32,20 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($contentType, $webResource->getContentType());
         $this->assertEquals($content, $webResource->getContent());
         $this->assertNull($webResource->getResponse());
+    }
+
+    public function createFromContentDataProvider(): array
+    {
+        $contentType = \Mockery::mock(InternetMediaTypeInterface::class);
+
+        return [
+            'has content type' => [
+                'contentType' => $contentType,
+            ],
+            'no content type' => [
+                'contentType' => null,
+            ],
+        ];
     }
 
     /**
