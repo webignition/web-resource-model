@@ -51,7 +51,7 @@ class WebResource implements WebResourceInterface
      *
      * @throws InvalidContentTypeException
      */
-    private function __construct(array $args)
+    protected function __construct(array $args)
     {
         $this->uri = $args[self::ARG_URI];
 
