@@ -4,6 +4,7 @@ namespace webignition\WebResource;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
+use webignition\InternetMediaType\InternetMediaType;
 use webignition\InternetMediaType\Parser\ParseException as InternetMediaTypeParseException;
 use webignition\InternetMediaTypeInterface\InternetMediaTypeInterface;
 use webignition\WebResource\Exception\InvalidContentTypeException;
@@ -85,6 +86,10 @@ class WebResource implements WebResourceInterface
         string $content,
         ?InternetMediaTypeInterface $contentType
     ): WebResourceInterface {
+        if (empty($contentType)) {
+            $contentType = static::getDefaultContentType();
+        }
+
         $className = get_called_class();
 
         return new $className([
@@ -102,6 +107,19 @@ class WebResource implements WebResourceInterface
             self::ARG_URI => $uri,
             self::ARG_RESPONSE => $response,
         ]);
+    }
+
+    /**
+     * Allow a default content type to defined.
+     *
+     * Classes extending WebResource and which are scoped to a specific content type may want to override
+     * this method to remove the need for the content type to be passed when creating a new instance.
+     *
+     * @return InternetMediaType|null
+     */
+    public static function getDefaultContentType(): ?InternetMediaType
+    {
+        return null;
     }
 
     public function setUri(UriInterface $uri): WebResourceInterface

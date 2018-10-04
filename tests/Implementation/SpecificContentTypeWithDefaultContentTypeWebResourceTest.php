@@ -7,7 +7,7 @@ use Psr\Http\Message\UriInterface;
 use webignition\InternetMediaType\InternetMediaType;
 use webignition\WebResource\Exception\InvalidContentTypeException;
 
-class SpecificContentTypeWebResourceTest extends \PHPUnit\Framework\TestCase
+class SpecificContentTypeWithDefaultContentTypeWebResourceTest extends \PHPUnit\Framework\TestCase
 {
     public function testCreateFromContentWithNoContentType()
     {
@@ -16,10 +16,13 @@ class SpecificContentTypeWebResourceTest extends \PHPUnit\Framework\TestCase
 
         $content = 'resource content';
 
-        $webResource = SpecificContentTypeWebResource::createFromContent($uri, $content, null);
+        $webResource = SpecificContentTypeWebResourceWithDefaultContentType::createFromContent($uri, $content, null);
 
         $this->assertEquals($uri, $webResource->getUri());
-        $this->assertEquals(null, $webResource->getContentType());
+        $this->assertEquals(
+            SpecificContentTypeWebResourceWithDefaultContentType::getDefaultContentType(),
+            $webResource->getContentType()
+        );
         $this->assertEquals($content, $webResource->getContent());
         $this->assertNull($webResource->getResponse());
     }
@@ -35,7 +38,11 @@ class SpecificContentTypeWebResourceTest extends \PHPUnit\Framework\TestCase
         $contentType->setType('foo');
         $contentType->setSubtype('bar');
 
-        $webResource = SpecificContentTypeWebResource::createFromContent($uri, $content, $contentType);
+        $webResource = SpecificContentTypeWebResourceWithDefaultContentType::createFromContent(
+            $uri,
+            $content,
+            $contentType
+        );
 
         $this->assertEquals($uri, $webResource->getUri());
         $this->assertEquals($contentType, $webResource->getContentType());
@@ -57,6 +64,6 @@ class SpecificContentTypeWebResourceTest extends \PHPUnit\Framework\TestCase
         $this->expectException(InvalidContentTypeException::class);
         $this->expectExceptionMessage('Invalid content type "invalid/invalid"');
 
-        SpecificContentTypeWebResource::createFromContent($uri, $content, $contentType);
+        SpecificContentTypeWebResourceWithDefaultContentType::createFromContent($uri, $content, $contentType);
     }
 }
