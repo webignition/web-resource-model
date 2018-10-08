@@ -9,6 +9,9 @@ use webignition\WebResource\Exception\InvalidContentTypeException;
 
 class SpecificContentTypeWebResourceTest extends \PHPUnit\Framework\TestCase
 {
+    /**
+     * @throws InvalidContentTypeException
+     */
     public function testCreateFromContentWithNoContentType()
     {
         /* @var UriInterface|MockInterface $uri */
@@ -24,6 +27,9 @@ class SpecificContentTypeWebResourceTest extends \PHPUnit\Framework\TestCase
         $this->assertNull($webResource->getResponse());
     }
 
+    /**
+     * @throws InvalidContentTypeException
+     */
     public function testCreateFromContentWithCorrectContentType()
     {
         /* @var UriInterface|MockInterface $uri */
@@ -43,6 +49,9 @@ class SpecificContentTypeWebResourceTest extends \PHPUnit\Framework\TestCase
         $this->assertNull($webResource->getResponse());
     }
 
+    /**
+     * @throws InvalidContentTypeException
+     */
     public function testCreateFromContentWithIncorrectContentType()
     {
         /* @var UriInterface|MockInterface $uri */

@@ -8,6 +8,7 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use webignition\InternetMediaType\InternetMediaType;
 use webignition\InternetMediaTypeInterface\InternetMediaTypeInterface;
+use webignition\WebResource\Exception\InvalidContentTypeException;
 use webignition\WebResource\Exception\ReadOnlyResponseException;
 use webignition\WebResource\Exception\UnseekableResponseException;
 use webignition\WebResource\WebResource;
@@ -18,6 +19,8 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
      * @dataProvider createFromContentDataProvider
      *
      * @param InternetMediaTypeInterface|null $contentType
+     *
+     * @throws InvalidContentTypeException
      */
     public function testCreateFromContent(?InternetMediaTypeInterface $contentType)
     {
@@ -54,6 +57,8 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
      * @param string $responseContentType
      * @param string $expectedContentType
      * @param bool $expectedHasInvalidContentType
+     *
+     * @throws InvalidContentTypeException
      */
     public function testCreateFromResponse(
         string $responseContentType,
@@ -106,6 +111,9 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
+    /**
+     * @throws InvalidContentTypeException
+     */
     public function testSetUri()
     {
         /* @var UriInterface|MockInterface $currentUri */
@@ -128,6 +136,9 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($newUri, $updatedWebResource->getUri());
     }
 
+    /**
+     * @throws InvalidContentTypeException
+     */
     public function testSetContentTypeForResourceWithoutResponse()
     {
         /* @var UriInterface|MockInterface $uri */
@@ -150,6 +161,9 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($newContentType, $updatedWebResource->getContentType());
     }
 
+    /**
+     * @throws InvalidContentTypeException
+     */
     public function testSetContentTypeForResourceWithResponse()
     {
         /* @var UriInterface|MockInterface $uri */
@@ -199,6 +213,9 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(spl_object_hash($updatedResponse), spl_object_hash($updatedWebResource->getResponse()));
     }
 
+    /**
+     * @throws InvalidContentTypeException
+     */
     public function testSetContentForResourceWithoutResponse()
     {
         /* @var UriInterface|MockInterface $uri */
@@ -220,6 +237,9 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($newContent, $updatedWebResource->getContent());
     }
 
+    /**
+     * @throws InvalidContentTypeException
+     */
     public function testSetContentForResourceWithReadOnlyResource()
     {
         /* @var UriInterface|MockInterface $uri */
@@ -256,6 +276,9 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
         $responseWebResource->setContent('');
     }
 
+    /**
+     * @throws InvalidContentTypeException
+     */
     public function testSetContentForUnseekableResource()
     {
         /* @var UriInterface|MockInterface $uri */
@@ -296,6 +319,9 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
         $responseWebResource->setContent('');
     }
 
+    /**
+     * @throws InvalidContentTypeException
+     */
     public function testSetContentForWritableResource()
     {
         /* @var UriInterface|MockInterface $uri */
@@ -360,6 +386,9 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
         $this->assertNotEquals(spl_object_hash($updatedResponseWebResource), spl_object_hash($responseWebResource));
     }
 
+    /**
+     * @throws InvalidContentTypeException
+     */
     public function testSetResponseForResourceWithoutResponse()
     {
         /* @var UriInterface|MockInterface $uri */

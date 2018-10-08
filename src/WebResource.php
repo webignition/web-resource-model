@@ -81,6 +81,15 @@ class WebResource implements WebResourceInterface
         $this->content = $args[self::ARG_CONTENT];
     }
 
+    /**
+     * @param UriInterface $uri
+     * @param string $content
+     * @param null|InternetMediaTypeInterface $contentType
+     *
+     * @return WebResourceInterface
+     *
+     * @throws InvalidContentTypeException
+     */
     public static function createFromContent(
         UriInterface $uri,
         string $content,
@@ -99,6 +108,14 @@ class WebResource implements WebResourceInterface
         ]);
     }
 
+    /**
+     * @param UriInterface $uri
+     * @param ResponseInterface $response
+     *
+     * @return WebResourceInterface
+     *
+     * @throws InvalidContentTypeException
+     */
     public static function createFromResponse(UriInterface $uri, ResponseInterface $response): WebResourceInterface
     {
         $className = get_called_class();
