@@ -25,10 +25,6 @@ class SpecificContentTypeWebResourceWithDefaultContentType extends WebResource
 
     public static function getDefaultContentType(): InternetMediaType
     {
-        $contentType = new InternetMediaType();
-        $contentType->setType(self::CONTENT_TYPE_TYPE);
-        $contentType->setSubtype(self::CONTENT_TYPE_SUBTYPE);
-
-        return $contentType;
+        return new InternetMediaType(self::CONTENT_TYPE_TYPE, self::CONTENT_TYPE_SUBTYPE);
     }
 }

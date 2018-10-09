@@ -202,51 +202,36 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider modelsDataProvider
      *
-     * @param string $contentTypeType
-     * @param string $contentTypeSubtype
+     * @param InternetMediaTypeInterface $contentType
      */
-    public function testModels($contentTypeType, $contentTypeSubtype)
+    public function testModels(InternetMediaTypeInterface $contentType)
     {
-        $contentType = new InternetMediaType();
-        $contentType->setType($contentTypeType);
-        $contentType->setSubtype($contentTypeSubtype);
-
         $this->assertTrue(WebResource::models($contentType));
     }
 
-    /**
-     * @return array
-     */
-    public function modelsDataProvider()
+    public function modelsDataProvider(): array
     {
         return [
             'text/plain' => [
-                'contentTypeType' => 'text',
-                'contentTypeSubtype' => 'plain',
+                'internetMediaType' => new InternetMediaType('text', 'plain'),
             ],
             'text/html' => [
-                'contentTypeType' => 'text',
-                'contentTypeSubtype' => 'html',
+                'internetMediaType' => new InternetMediaType('text', 'html'),
             ],
             'application/xml' => [
-                'contentTypeType' => 'application',
-                'contentTypeSubtype' => 'xml',
+                'internetMediaType' => new InternetMediaType('application', 'xml'),
             ],
             'application/json' => [
-                'contentTypeType' => 'application',
-                'contentTypeSubtype' => 'json',
+                'internetMediaType' => new InternetMediaType('application', 'json'),
             ],
             'application/octetstream' => [
-                'contentTypeType' => 'application',
-                'contentTypeSubtype' => 'octetstream',
+                'internetMediaType' => new InternetMediaType('application', 'octetstream'),
             ],
             'image/png' => [
-                'contentTypeType' => 'image',
-                'contentTypeSubtype' => 'png',
+                'internetMediaType' => new InternetMediaType('image', 'png'),
             ],
             'image/jpeg' => [
-                'contentTypeType' => 'image',
-                'contentTypeSubtype' => 'jpeg',
+                'internetMediaType' => new InternetMediaType('image', 'jpeg'),
             ],
         ];
     }

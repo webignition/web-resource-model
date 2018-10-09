@@ -120,9 +120,7 @@ class WebResourceMutationTest extends \PHPUnit\Framework\TestCase
             ->andReturn($responseBodyContent);
 
         $updatedContentTypeString = 'foo/bar';
-        $updatedContentType = new InternetMediaType();
-        $updatedContentType->setType('foo');
-        $updatedContentType->setSubtype('bar');
+        $updatedContentType = new InternetMediaType('foo', 'bar');
 
         /* @var ResponseInterface|MockInterface $updatedResponse */
         $updatedResponse = \Mockery::mock(ResponseInterface::class);

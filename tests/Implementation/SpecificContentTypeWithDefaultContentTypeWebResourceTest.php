@@ -33,10 +33,7 @@ class SpecificContentTypeWithDefaultContentTypeWebResourceTest extends \PHPUnit\
     public function testCreateFromContentWithCorrectContentType()
     {
         $content = 'resource content';
-
-        $contentType = new InternetMediaType();
-        $contentType->setType('foo');
-        $contentType->setSubtype('bar');
+        $contentType = new InternetMediaType('foo', 'bar');
 
         $webResource = new SpecificContentTypeWebResourceWithDefaultContentType(WebResourceProperties::create([
             WebResourceProperties::ARG_CONTENT => $content,
@@ -54,10 +51,7 @@ class SpecificContentTypeWithDefaultContentTypeWebResourceTest extends \PHPUnit\
     public function testCreateFromContentWithIncorrectContentType()
     {
         $content = 'resource content';
-
-        $contentType = new InternetMediaType();
-        $contentType->setType('invalid');
-        $contentType->setSubtype('invalid');
+        $contentType = new InternetMediaType('invalid', 'invalid');
 
         $this->expectException(InvalidContentTypeException::class);
         $this->expectExceptionMessage('Invalid content type "invalid/invalid"');
