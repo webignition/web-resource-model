@@ -23,7 +23,7 @@ class SpecificContentTypeWebResourceWithDefaultContentType extends WebResource
         ];
     }
 
-    public static function getDefaultContentType(): InternetMediaType
+    public static function getDefaultContentType(): InternetMediaTypeInterface
     {
         return new InternetMediaType(self::CONTENT_TYPE_TYPE, self::CONTENT_TYPE_SUBTYPE);
     }

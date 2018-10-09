@@ -111,9 +111,9 @@ class WebResource implements WebResourceInterface
      * Classes extending WebResource and which are scoped to a specific content type may want to override
      * this method to remove the need for the content type to be passed when creating a new instance.
      *
-     * @return InternetMediaType|null
+     * @return InternetMediaTypeInterface|null
      */
-    public static function getDefaultContentType(): ?InternetMediaType
+    public static function getDefaultContentType(): ?InternetMediaTypeInterface
     {
         return null;
     }
