@@ -47,83 +47,62 @@ class WebResource implements WebResourceInterface
     private $hasInvalidContentType = null;
 
     /**
-     * @param array $args
+     * @param WebResourcePropertiesInterface $properties
      *
      * @throws InvalidContentTypeException
      */
-    protected function __construct(array $args)
+    public function __construct(WebResourcePropertiesInterface $properties)
     {
-        $this->uri = $args[self::ARG_URI];
+        $uri = $properties->getUri();
+        $contentType = $properties->getContentType();
+        $content = $properties->getContent();
+        $response = $properties->getResponse();
 
-        if (isset($args[self::ARG_RESPONSE])) {
-            $this->response = $args[self::ARG_RESPONSE];
+        if (empty($contentType)) {
+            $contentType = static::getDefaultContentType();
+        }
 
-            $contentType = null;
+        if ($response) {
+            $content = null;
 
             try {
-                $contentType = ContentTypeFactory::createFromResponse($this->response);
+                $contentType = ContentTypeFactory::createFromResponse($response);
                 $this->hasInvalidContentType = false;
             } catch (InternetMediaTypeParseException $e) {
                 $this->hasInvalidContentType = true;
             }
-
-            $args[self::ARG_CONTENT_TYPE] = $contentType;
-            $args[self::ARG_CONTENT] = null;
         }
-
-        $contentType = $args[self::ARG_CONTENT_TYPE];
 
         if (!empty($contentType) && !static::models($contentType)) {
             throw new InvalidContentTypeException($contentType);
         }
 
-        $this->contentType = $args[self::ARG_CONTENT_TYPE];
-        $this->content = $args[self::ARG_CONTENT];
+        $this->uri = $uri;
+        $this->contentType = $contentType;
+        $this->content = $content;
+        $this->response = $response;
     }
 
-    /**
-     * @param UriInterface $uri
-     * @param string $content
-     * @param null|InternetMediaTypeInterface $contentType
-     *
-     * @return WebResourceInterface
-     *
-     * @throws InvalidContentTypeException
-     */
-    public static function createFromContent(
-        UriInterface $uri,
-        string $content,
-        ?InternetMediaTypeInterface $contentType = null
-    ): WebResourceInterface {
-        if (empty($contentType)) {
-            $contentType = static::getDefaultContentType();
-        }
-
-        $className = get_called_class();
-
-        return new $className([
-            self::ARG_URI => $uri,
-            self::ARG_CONTENT_TYPE => $contentType,
-            self::ARG_CONTENT => $content,
-        ]);
-    }
-
-    /**
-     * @param UriInterface $uri
-     * @param ResponseInterface $response
-     *
-     * @return WebResourceInterface
-     *
-     * @throws InvalidContentTypeException
-     */
-    public static function createFromResponse(UriInterface $uri, ResponseInterface $response): WebResourceInterface
+    protected function getPropertiesClassName(): string
     {
-        $className = get_called_class();
+        return WebResourceProperties::class;
+    }
 
-        return new $className([
-            self::ARG_URI => $uri,
-            self::ARG_RESPONSE => $response,
-        ]);
+    protected function mergeProperties(?WebResourcePropertiesInterface $properties): WebResourcePropertiesInterface
+    {
+        $propertiesClassName = $this->getPropertiesClassName();
+
+        $uri = $properties->hasUri() ? $properties->getUri() : $this->uri;
+        $contentType = $properties->hasContentType() ? $properties->getContentType() : $this->contentType;
+        $content = $properties->hasContent() ? $properties->getContent() : $this->content;
+        $response = $properties->hasResponse() ? $properties->getResponse() : $this->response;
+
+        return new $propertiesClassName(
+            $uri,
+            $contentType,
+            $content,
+            $response
+        );
     }
 
     /**
@@ -141,7 +120,9 @@ class WebResource implements WebResourceInterface
 
     public function setUri(UriInterface $uri): WebResourceInterface
     {
-        return $this->createNewInstance($uri, $this->contentType, $this->content, $this->response);
+        return $this->createNewInstance([
+            WebResourceProperties::ARG_URI => $uri,
+        ]);
     }
 
     public function getUri(): UriInterface
@@ -157,7 +138,10 @@ class WebResource implements WebResourceInterface
             $response = $this->response->withHeader(self::HEADER_CONTENT_TYPE, (string)$contentType);
         }
 
-        return $this->createNewInstance($this->uri, $contentType, $this->content, $response);
+        return $this->createNewInstance([
+            WebResourceProperties::ARG_CONTENT_TYPE => $contentType,
+            WebResourceProperties::ARG_RESPONSE => $response,
+        ]);
     }
 
     public function getContentType(): ?InternetMediaTypeInterface
@@ -189,10 +173,14 @@ class WebResource implements WebResourceInterface
             $contentType = null;
         }
 
-        return $this->createNewInstance($this->uri, $contentType, $content, $response);
+        return $this->createNewInstance([
+            WebResourceProperties::ARG_CONTENT_TYPE => $contentType,
+            WebResourceProperties::ARG_CONTENT => $content,
+            WebResourceProperties::ARG_RESPONSE => $response,
+        ]);
     }
 
-    public function getContent(): string
+    public function getContent(): ?string
     {
         if (empty($this->response)) {
             return $this->content;
@@ -210,10 +198,10 @@ class WebResource implements WebResourceInterface
 
     public function setResponse(ResponseInterface $response): WebResourceInterface
     {
-        $contentType = null;
-        $content = null;
-
-        return $this->createNewInstance($this->uri, $contentType, $content, $response);
+        return $this->createNewInstance([
+            WebResourceProperties::ARG_CONTENT => null,
+            WebResourceProperties::ARG_RESPONSE => $response,
+        ]);
     }
 
     public function getResponse(): ?ResponseInterface
@@ -221,26 +209,13 @@ class WebResource implements WebResourceInterface
         return $this->response;
     }
 
-    private function createNewInstance(
-        UriInterface $uri,
-        ?InternetMediaTypeInterface $contentType,
-        ?string $content,
-        ?ResponseInterface $response
-    ): WebResourceInterface {
-        $args = [
-            self::ARG_URI => $uri,
-        ];
-
-        if (empty($response)) {
-            $args[self::ARG_CONTENT] = $content;
-            $args[self::ARG_CONTENT_TYPE] = $contentType;
-        } else {
-            $args[self::ARG_RESPONSE] = $response;
-        }
-
+    protected function createNewInstance(array $args): WebResourceInterface
+    {
+        /* @var WebResourceProperties $propertiesClassName */
+        $propertiesClassName = $this->getPropertiesClassName();
         $className = get_called_class();
 
-        return new $className($args);
+        return new $className($this->mergeProperties($propertiesClassName::create($args)));
     }
 
     /**

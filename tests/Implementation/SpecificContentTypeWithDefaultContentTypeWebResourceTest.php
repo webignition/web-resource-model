@@ -2,10 +2,9 @@
 
 namespace webignition\Tests\WebResource\Implementation;
 
-use Mockery\MockInterface;
-use Psr\Http\Message\UriInterface;
 use webignition\InternetMediaType\InternetMediaType;
 use webignition\WebResource\Exception\InvalidContentTypeException;
+use webignition\WebResource\WebResourceProperties;
 
 class SpecificContentTypeWithDefaultContentTypeWebResourceTest extends \PHPUnit\Framework\TestCase
 {
@@ -14,14 +13,12 @@ class SpecificContentTypeWithDefaultContentTypeWebResourceTest extends \PHPUnit\
      */
     public function testCreateFromContentWithNoContentType()
     {
-        /* @var UriInterface|MockInterface $uri */
-        $uri = \Mockery::mock(UriInterface::class);
-
         $content = 'resource content';
 
-        $webResource = SpecificContentTypeWebResourceWithDefaultContentType::createFromContent($uri, $content, null);
+        $webResource = new SpecificContentTypeWebResourceWithDefaultContentType(WebResourceProperties::create([
+            WebResourceProperties::ARG_CONTENT => $content,
+        ]));
 
-        $this->assertEquals($uri, $webResource->getUri());
         $this->assertEquals(
             SpecificContentTypeWebResourceWithDefaultContentType::getDefaultContentType(),
             $webResource->getContentType()
@@ -35,22 +32,17 @@ class SpecificContentTypeWithDefaultContentTypeWebResourceTest extends \PHPUnit\
      */
     public function testCreateFromContentWithCorrectContentType()
     {
-        /* @var UriInterface|MockInterface $uri */
-        $uri = \Mockery::mock(UriInterface::class);
-
         $content = 'resource content';
 
         $contentType = new InternetMediaType();
         $contentType->setType('foo');
         $contentType->setSubtype('bar');
 
-        $webResource = SpecificContentTypeWebResourceWithDefaultContentType::createFromContent(
-            $uri,
-            $content,
-            $contentType
-        );
+        $webResource = new SpecificContentTypeWebResourceWithDefaultContentType(WebResourceProperties::create([
+            WebResourceProperties::ARG_CONTENT => $content,
+            WebResourceProperties::ARG_CONTENT_TYPE => $contentType,
+        ]));
 
-        $this->assertEquals($uri, $webResource->getUri());
         $this->assertEquals($contentType, $webResource->getContentType());
         $this->assertEquals($content, $webResource->getContent());
         $this->assertNull($webResource->getResponse());
@@ -61,9 +53,6 @@ class SpecificContentTypeWithDefaultContentTypeWebResourceTest extends \PHPUnit\
      */
     public function testCreateFromContentWithIncorrectContentType()
     {
-        /* @var UriInterface|MockInterface $uri */
-        $uri = \Mockery::mock(UriInterface::class);
-
         $content = 'resource content';
 
         $contentType = new InternetMediaType();
@@ -73,6 +62,9 @@ class SpecificContentTypeWithDefaultContentTypeWebResourceTest extends \PHPUnit\
         $this->expectException(InvalidContentTypeException::class);
         $this->expectExceptionMessage('Invalid content type "invalid/invalid"');
 
-        SpecificContentTypeWebResourceWithDefaultContentType::createFromContent($uri, $content, $contentType);
+        new SpecificContentTypeWebResourceWithDefaultContentType(WebResourceProperties::create([
+            WebResourceProperties::ARG_CONTENT => $content,
+            WebResourceProperties::ARG_CONTENT_TYPE => $contentType,
+        ]));
     }
 }
