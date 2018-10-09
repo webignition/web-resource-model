@@ -17,13 +17,76 @@ use webignition\WebResource\WebResourceProperties;
 class WebResourceTest extends \PHPUnit\Framework\TestCase
 {
     /**
-     * @dataProvider createFromContentDataProvider
+     * @throws InvalidContentTypeException
+     */
+    public function testCreateWithNoArguments()
+    {
+        $webResource = new WebResource();
+
+        $this->assertNull($webResource->getUri());
+        $this->assertNull($webResource->getContentType());
+        $this->assertNull($webResource->getContent());
+        $this->assertNull($webResource->getResponse());
+    }
+
+    /**
+     * @throws InvalidContentTypeException
+     */
+    public function testCreateFromContent()
+    {
+        $content = 'content';
+        $contentType = new InternetMediaType('text', 'plain');
+
+        $webResource = WebResource::createFromContent($content, $contentType);
+
+        $this->assertInstanceOf(WebResource::class, $webResource);
+        $this->assertEquals($content, $webResource->getContent());
+        $this->assertEquals($contentType, $webResource->getContentType());
+        $this->assertNull($webResource->getUri());
+        $this->assertNull($webResource->getResponse());
+    }
+
+    /**
+     * @throws InvalidContentTypeException
+     */
+    public function testCreateFromResponse()
+    {
+        $uri = \Mockery::mock(UriInterface::class);
+        $contentTypeString = 'text/plain';
+        $content = 'content';
+
+        $responseBody = \Mockery::mock(StreamInterface::class);
+        $responseBody
+            ->shouldReceive('__toString')
+            ->andReturn($content);
+
+        $response = \Mockery::mock(ResponseInterface::class);
+        $response
+            ->shouldReceive('getHeaderLine')
+            ->with(WebResource::HEADER_CONTENT_TYPE)
+            ->andReturn($contentTypeString);
+
+        $response
+            ->shouldReceive('getBody')
+            ->andReturn($responseBody);
+
+        $webResource = WebResource::createFromResponse($uri, $response);
+
+        $this->assertInstanceOf(WebResource::class, $webResource);
+        $this->assertEquals($content, $webResource->getContent());
+        $this->assertEquals($contentTypeString, $webResource->getContentType());
+        $this->assertEquals($uri, $webResource->getUri());
+        $this->assertEquals($response, $webResource->getResponse());
+    }
+
+    /**
+     * @dataProvider createWithContentDataProvider
      *
      * @param InternetMediaTypeInterface|null $contentType
      *
      * @throws InvalidContentTypeException
      */
-    public function testCreateFromContent(?InternetMediaTypeInterface $contentType)
+    public function testCreateWithContent(?InternetMediaTypeInterface $contentType)
     {
         /* @var UriInterface|MockInterface $uri */
         $uri = \Mockery::mock(UriInterface::class);
@@ -42,7 +105,7 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
         $this->assertNull($webResource->getResponse());
     }
 
-    public function createFromContentDataProvider(): array
+    public function createWithContentDataProvider(): array
     {
         $contentType = \Mockery::mock(InternetMediaTypeInterface::class);
 
@@ -57,7 +120,7 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @dataProvider createFromResponseDataProvider
+     * @dataProvider createWithResponseDataProvider
      *
      * @param string $responseContentType
      * @param string $expectedContentType
@@ -65,7 +128,7 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
      *
      * @throws InvalidContentTypeException
      */
-    public function testCreateFromResponse(
+    public function testCreateWithResponse(
         string $responseContentType,
         string $expectedContentType,
         bool $expectedHasInvalidContentType
@@ -101,7 +164,7 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($response, $webResource->getResponse());
     }
 
-    public function createFromResponseDataProvider()
+    public function createWithResponseDataProvider()
     {
         return [
             'valid content type' => [

@@ -4,7 +4,6 @@ namespace webignition\WebResource;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
-use webignition\InternetMediaType\InternetMediaType;
 use webignition\InternetMediaType\Parser\ParseException as InternetMediaTypeParseException;
 use webignition\InternetMediaTypeInterface\InternetMediaTypeInterface;
 use webignition\WebResource\Exception\InvalidContentTypeException;
@@ -51,36 +50,76 @@ class WebResource implements WebResourceInterface
      *
      * @throws InvalidContentTypeException
      */
-    public function __construct(WebResourcePropertiesInterface $properties)
+    public function __construct(?WebResourcePropertiesInterface $properties = null)
     {
-        $uri = $properties->getUri();
-        $contentType = $properties->getContentType();
-        $content = $properties->getContent();
-        $response = $properties->getResponse();
+        if (!empty($properties)) {
+            $uri = $properties->getUri();
+            $contentType = $properties->getContentType();
+            $content = $properties->getContent();
+            $response = $properties->getResponse();
 
-        if (empty($contentType)) {
-            $contentType = static::getDefaultContentType();
-        }
-
-        if ($response) {
-            $content = null;
-
-            try {
-                $contentType = ContentTypeFactory::createFromResponse($response);
-                $this->hasInvalidContentType = false;
-            } catch (InternetMediaTypeParseException $e) {
-                $this->hasInvalidContentType = true;
+            if (empty($contentType)) {
+                $contentType = static::getDefaultContentType();
             }
-        }
 
-        if (!empty($contentType) && !static::models($contentType)) {
-            throw new InvalidContentTypeException($contentType);
-        }
+            if ($response) {
+                $content = null;
 
-        $this->uri = $uri;
-        $this->contentType = $contentType;
-        $this->content = $content;
-        $this->response = $response;
+                try {
+                    $contentType = ContentTypeFactory::createFromResponse($response);
+                    $this->hasInvalidContentType = false;
+                } catch (InternetMediaTypeParseException $e) {
+                    $this->hasInvalidContentType = true;
+                }
+            }
+
+            if (!empty($contentType) && !static::models($contentType)) {
+                throw new InvalidContentTypeException($contentType);
+            }
+
+            $this->uri = $uri;
+            $this->contentType = $contentType;
+            $this->content = $content;
+            $this->response = $response;
+        }
+    }
+
+    /**
+     * @param string $content
+     * @param InternetMediaTypeInterface $contentType
+     *
+     * @return WebResourceInterface
+     *
+     * @throws InvalidContentTypeException
+     */
+    public static function createFromContent(
+        string $content,
+        ?InternetMediaTypeInterface $contentType = null
+    ): WebResourceInterface {
+        $className = get_called_class();
+
+        return new $className(WebResourceProperties::create([
+            WebResourceProperties::ARG_CONTENT => $content,
+            WebResourceProperties::ARG_CONTENT_TYPE => $contentType,
+        ]));
+    }
+
+    /**
+     * @param UriInterface $uri
+     * @param ResponseInterface $response
+     *
+     * @return WebResourceInterface
+     *
+     * @throws InvalidContentTypeException
+     */
+    public static function createFromResponse(UriInterface $uri, ResponseInterface $response): WebResourceInterface
+    {
+        $className = get_called_class();
+
+        return new $className(WebResourceProperties::create([
+            WebResourceProperties::ARG_URI => $uri,
+            WebResourceProperties::ARG_RESPONSE => $response,
+        ]));
     }
 
     protected function getPropertiesClassName(): string
@@ -125,7 +164,7 @@ class WebResource implements WebResourceInterface
         ]);
     }
 
-    public function getUri(): UriInterface
+    public function getUri(): ?UriInterface
     {
         return $this->uri;
     }
