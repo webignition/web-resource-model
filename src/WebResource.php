@@ -52,6 +52,11 @@ class WebResource implements WebResourceInterface
      */
     public function __construct(?WebResourcePropertiesInterface $properties = null)
     {
+        $uri = null;
+        $contentType = static::getDefaultContentType();
+        $content = null;
+        $response = null;
+
         if (!empty($properties)) {
             $uri = $properties->getUri();
             $contentType = $properties->getContentType();
@@ -72,16 +77,16 @@ class WebResource implements WebResourceInterface
                     $this->hasInvalidContentType = true;
                 }
             }
-
-            if (!empty($contentType) && !static::models($contentType)) {
-                throw new InvalidContentTypeException($contentType);
-            }
-
-            $this->uri = $uri;
-            $this->contentType = $contentType;
-            $this->content = $content;
-            $this->response = $response;
         }
+
+        if (!empty($contentType) && !static::models($contentType)) {
+            throw new InvalidContentTypeException($contentType);
+        }
+
+        $this->uri = $uri;
+        $this->contentType = $contentType;
+        $this->content = $content;
+        $this->response = $response;
     }
 
     /**

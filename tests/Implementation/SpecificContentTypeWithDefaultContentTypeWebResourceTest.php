@@ -11,7 +11,20 @@ class SpecificContentTypeWithDefaultContentTypeWebResourceTest extends \PHPUnit\
     /**
      * @throws InvalidContentTypeException
      */
-    public function testCreateFromContentWithNoContentType()
+    public function testCreateWithNoArgs()
+    {
+        $webResource = new SpecificContentTypeWebResourceWithDefaultContentType();
+
+        $this->assertEquals(
+            SpecificContentTypeWebResourceWithDefaultContentType::getDefaultContentType(),
+            $webResource->getContentType()
+        );
+    }
+
+    /**
+     * @throws InvalidContentTypeException
+     */
+    public function testCreateWithContentWithNoContentType()
     {
         $content = 'resource content';
 
@@ -30,7 +43,7 @@ class SpecificContentTypeWithDefaultContentTypeWebResourceTest extends \PHPUnit\
     /**
      * @throws InvalidContentTypeException
      */
-    public function testCreateFromContentWithCorrectContentType()
+    public function testCreateWithContentWithCorrectContentType()
     {
         $content = 'resource content';
         $contentType = new InternetMediaType('foo', 'bar');
@@ -48,7 +61,7 @@ class SpecificContentTypeWithDefaultContentTypeWebResourceTest extends \PHPUnit\
     /**
      * @throws InvalidContentTypeException
      */
-    public function testCreateFromContentWithIncorrectContentType()
+    public function testCreateWithContentWithIncorrectContentType()
     {
         $content = 'resource content';
         $contentType = new InternetMediaType('invalid', 'invalid');
