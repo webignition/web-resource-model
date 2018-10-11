@@ -8,6 +8,7 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use webignition\InternetMediaType\InternetMediaType;
 use webignition\InternetMediaTypeInterface\InternetMediaTypeInterface;
+use webignition\StreamFactoryInterface\StreamFactoryInterface;
 use webignition\WebResource\Exception\InvalidContentTypeException;
 use webignition\WebResource\WebResource;
 use webignition\WebResource\WebResourceProperties;
@@ -216,21 +217,6 @@ class WebResourceMutationTest extends \PHPUnit\Framework\TestCase
             ->shouldReceive('__toString')
             ->andReturn($responseBodyContent);
 
-        $responseBody
-            ->shouldReceive('isWritable')
-            ->andReturn(true);
-
-        $responseBody
-            ->shouldReceive('isSeekable')
-            ->andReturn(true);
-
-        $responseBody
-            ->shouldReceive('rewind');
-
-        $responseBody
-            ->shouldReceive('write')
-            ->with($newResponseBodyContent);
-
         $newResponse = \Mockery::mock(ResponseInterface::class);
         $newResponse
             ->shouldReceive('getHeaderLine')
@@ -259,6 +245,14 @@ class WebResourceMutationTest extends \PHPUnit\Framework\TestCase
             })
             ->andReturn($newResponse);
 
+        $updatedResponseBody = \Mockery::mock(StreamInterface::class);
+
+        $streamFactory = \Mockery::mock(StreamFactoryInterface::class);
+        $streamFactory
+            ->shouldReceive('createFromString')
+            ->with($newResponseBodyContent)
+            ->andReturn($updatedResponseBody);
+
         $this->createWebResource([
             WebResourceProperties::ARG_URI => $uri,
             WebResourceProperties::ARG_RESPONSE => $response,
@@ -269,7 +263,7 @@ class WebResourceMutationTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($contentTypeString, (string)$this->webResource->getContentType());
         $this->assertEquals($responseBodyContent, $this->webResource->getContent());
 
-        $this->updatedWebResource = $this->webResource->setContent($newResponseBodyContent);
+        $this->updatedWebResource = $this->webResource->setContent($newResponseBodyContent, $streamFactory);
 
         $this->assertEquals($uri, $this->webResource->getUri());
         $this->assertEquals($response, $this->webResource->getResponse());

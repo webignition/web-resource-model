@@ -9,8 +9,7 @@ use Psr\Http\Message\UriInterface;
 use webignition\InternetMediaType\InternetMediaType;
 use webignition\InternetMediaTypeInterface\InternetMediaTypeInterface;
 use webignition\WebResource\Exception\InvalidContentTypeException;
-use webignition\WebResource\Exception\ReadOnlyResponseException;
-use webignition\WebResource\Exception\UnseekableResponseException;
+use webignition\WebResource\Exception\UnwritableContentException;
 use webignition\WebResource\WebResource;
 use webignition\WebResource\WebResourceProperties;
 
@@ -182,10 +181,9 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @throws InvalidContentTypeException
-     * @throws ReadOnlyResponseException
-     * @throws UnseekableResponseException
+     * @throws UnwritableContentException
      */
-    public function testSetContentForResourceWithReadOnlyResource()
+    public function testSetContentForResourceWithResponseWithoutStreamFactory()
     {
         $contentTypeString = 'text/html';
 
@@ -195,10 +193,6 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
         $responseBody
             ->shouldReceive('__toString')
             ->andReturn($responseBodyContent);
-
-        $responseBody
-            ->shouldReceive('isWritable')
-            ->andReturn(false);
 
         $response = \Mockery::mock(ResponseInterface::class);
         $response
@@ -214,50 +208,7 @@ class WebResourceTest extends \PHPUnit\Framework\TestCase
             WebResourceProperties::ARG_RESPONSE => $response,
         ]));
 
-        $this->expectException(ReadOnlyResponseException::class);
-
-        $webResource->setContent('');
-    }
-
-    /**
-     * @throws InvalidContentTypeException
-     * @throws ReadOnlyResponseException
-     * @throws UnseekableResponseException
-     */
-    public function testSetContentForUnseekableResource()
-    {
-        $contentTypeString = 'text/html';
-
-        $responseBodyContent = 'response body content';
-
-        $responseBody = \Mockery::mock(StreamInterface::class);
-        $responseBody
-            ->shouldReceive('__toString')
-            ->andReturn($responseBodyContent);
-
-        $responseBody
-            ->shouldReceive('isWritable')
-            ->andReturn(true);
-
-        $responseBody
-            ->shouldReceive('isSeekable')
-            ->andReturn(false);
-
-        $response = \Mockery::mock(ResponseInterface::class);
-        $response
-            ->shouldReceive('getHeaderLine')
-            ->with(WebResource::HEADER_CONTENT_TYPE)
-            ->andReturn($contentTypeString);
-
-        $response
-            ->shouldReceive('getBody')
-            ->andReturn($responseBody);
-
-        $webResource = new WebResource(WebResourceProperties::create([
-            WebResourceProperties::ARG_RESPONSE => $response,
-        ]));
-
-        $this->expectException(UnseekableResponseException::class);
+        $this->expectException(UnwritableContentException::class);
 
         $webResource->setContent('');
     }

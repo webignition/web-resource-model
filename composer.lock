@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eb10347655179ffa8caabeab810ce844",
+    "content-hash": "f7e3c05fa4fb8b03ab766a38247c2d7d",
     "packages": [
         {
             "name": "psr/http-message",
@@ -240,6 +240,51 @@
             "time": "2017-05-11T11:41:31+00:00"
         },
         {
+            "name": "webignition/stream-factory-interface",
+            "version": "0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/webignition/stream-factory-interface.git",
+                "reference": "c2e7d8fdb0b129db1a47e0c28f47793758b4fc0d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/webignition/stream-factory-interface/zipball/c2e7d8fdb0b129db1a47e0c28f47793758b4fc0d",
+                "reference": "c2e7d8fdb0b129db1a47e0c28f47793758b4fc0d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2.0",
+                "psr/http-message": "~1.0"
+            },
+            "require-dev": {
+                "squizlabs/php_codesniffer": "^3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "webignition\\StreamFactoryInterface\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jon Cram",
+                    "email": "jon@webignition.net"
+                }
+            ],
+            "description": "Interface for a factory to create Psr\\Http\\Message\\StreamInterface objects",
+            "homepage": "https://github.com/webignition/stream-factory-interfaces",
+            "keywords": [
+                "psr-7",
+                "stream"
+            ],
+            "time": "2018-10-11T15:16:36+00:00"
+        },
+        {
             "name": "webignition/string-parser",
             "version": "0.2.3",
             "source": {
@@ -288,22 +333,23 @@
         },
         {
             "name": "webignition/web-resource-interfaces",
-            "version": "3.3",
+            "version": "3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webignition/web-resource-interfaces.git",
-                "reference": "0c6a2cb21c094af9f2ff9566bb125bafd00f54aa"
+                "reference": "07ed13f213d9251a89a82a9de988291bfb82d60a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webignition/web-resource-interfaces/zipball/0c6a2cb21c094af9f2ff9566bb125bafd00f54aa",
-                "reference": "0c6a2cb21c094af9f2ff9566bb125bafd00f54aa",
+                "url": "https://api.github.com/repos/webignition/web-resource-interfaces/zipball/07ed13f213d9251a89a82a9de988291bfb82d60a",
+                "reference": "07ed13f213d9251a89a82a9de988291bfb82d60a",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.2.0",
                 "psr/http-message": "~1.0",
-                "webignition/internet-media-type-interface": ">=0.1,<1"
+                "webignition/internet-media-type-interface": ">=0.1,<1",
+                "webignition/stream-factory-interface": ">=0.2,<1"
             },
             "require-dev": {
                 "squizlabs/php_codesniffer": "^3"
@@ -333,7 +379,7 @@
                 "psr-7",
                 "web-page"
             ],
-            "time": "2018-10-08T16:22:49+00:00"
+            "time": "2018-10-11T16:17:06+00:00"
         }
     ],
     "packages-dev": [

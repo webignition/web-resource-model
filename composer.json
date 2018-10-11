@@ -32,9 +32,10 @@
     "require": {
         "php": ">=7.2",
         "psr/http-message": "^1",
-        "webignition/web-resource-interfaces":">=3.2,<4",
+        "webignition/web-resource-interfaces":">=3.4,<4",
         "webignition/internet-media-type-interface":"^0.4",
-        "webignition/internet-media-type":"^2"
+        "webignition/internet-media-type":"^2",
+        "webignition/stream-factory-interface": ">=0.2,<1"
     },
     "require-dev": {
         "phpunit/phpunit": "^7",

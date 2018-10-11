@@ -6,9 +6,9 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 use webignition\InternetMediaType\Parser\ParseException as InternetMediaTypeParseException;
 use webignition\InternetMediaTypeInterface\InternetMediaTypeInterface;
+use webignition\StreamFactoryInterface\StreamFactoryInterface;
 use webignition\WebResource\Exception\InvalidContentTypeException;
-use webignition\WebResource\Exception\ReadOnlyResponseException;
-use webignition\WebResource\Exception\UnseekableResponseException;
+use webignition\WebResource\Exception\UnwritableContentException;
 use webignition\WebResourceInterfaces\WebResourceInterface;
 
 class WebResource implements WebResourceInterface
@@ -200,20 +200,24 @@ class WebResource implements WebResourceInterface
 
     /**
      * @param string $content
+     * @param StreamFactoryInterface|null $streamFactory
      *
      * @return WebResourceInterface
      *
-     * @throws ReadOnlyResponseException
-     * @throws UnseekableResponseException
+     * @throws UnwritableContentException
      */
-    public function setContent(string $content): WebResourceInterface
+    public function setContent(string $content, ?StreamFactoryInterface $streamFactory = null): WebResourceInterface
     {
-        if (empty($this->response)) {
-            $response = null;
-            $contentType = $this->contentType;
-        } else {
-            $response = $this->setResponseBodyContent($content);
-            $content = null;
+        $response = null;
+        $contentType = $this->contentType;
+
+        if ($this->response && empty($streamFactory)) {
+            throw UnwritableContentException::create();
+        }
+
+        if ($this->response) {
+            $responseBody = $streamFactory->createFromString($content);
+            $response = $this->response->withBody($responseBody);
             $contentType = null;
         }
 
@@ -260,35 +264,6 @@ class WebResource implements WebResourceInterface
         $className = get_called_class();
 
         return new $className($this->mergeProperties($propertiesClassName::create($args)));
-    }
-
-    /**
-     * @param string $content
-     *
-     * @return ResponseInterface
-     *
-     * @throws ReadOnlyResponseException
-     * @throws UnseekableResponseException
-     */
-    private function setResponseBodyContent(string $content): ResponseInterface
-    {
-        $responseBody = $this->response->getBody();
-
-        if (!$responseBody->isWritable()) {
-            throw new ReadOnlyResponseException();
-        }
-
-        if (!$responseBody->isSeekable()) {
-            throw new UnseekableResponseException();
-        }
-
-        $updatedResponseBody = clone $responseBody;
-
-        $updatedResponseBody->rewind();
-        $updatedResponseBody->write($content);
-        $updatedResponseBody->rewind();
-
-        return $this->response->withBody($updatedResponseBody);
     }
 
     /**
